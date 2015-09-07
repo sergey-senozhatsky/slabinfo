@@ -8,7 +8,7 @@
 # of the License, or (at your option) any later version.
 
 sleepts=1s
-slabinfo=./slabinfo
+slabinfo=slabinfo
 record_file=""
 lines=5
 mode=""
@@ -44,12 +44,21 @@ function do_gnuplot_preprocess
 	let lines=2
 	`cat $record_file | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
 		 | awk '{print $1" "$4+$2*$3" "$4}' > gnuplot_slabs-by-loss-$record_file`
+	if [ $? == 0 ]; then
+		echo "File gnuplot_slabs-by-loss-$record_file"
+	fi
 
 	let lines=$lines+1
 	`cat $record_file | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
 		| awk '{print $1" "$4" "$4-$2*$3}' > gnuplot_slabs-by-size-$record_file`
+	if [ $? == 0 ]; then
+		echo "File gnuplot_slabs-by-size-$record_file"
+	fi
 
 	`cat $record_file | grep "Memory used" | awk '{print $3" "$7}' > gnuplot_totals-$record_file`
+	if [ $? == 0 ]; then
+		echo "File gnuplot_totals-$record_file"
+	fi
 }
 
 function do_record

@@ -1,4 +1,39 @@
-Sergey Senozhatsky, 2015
+TL;DL
+===============================================================================
+
+A quick tutorial
+
+# start collecting samples, record file name is NOMERGE, note sudo
+sudo ./slabinfo-plotter.sh -r NOMERGE
+
+#^C or reboot
+
+#pre-process records file for gnuplot
+./slabinfo-plotter.sh -p NOMERGE -b gnuplot
+File gnuplot_slabs-by-loss-NOMERGE
+File gnuplot_slabs-by-size-NOMERGE
+File gnuplot_totals-NOMERGE
+
+#generate grphs from 'slabinfo totals'
+./gnuplot-totals.sh -f gnuplot_totals-NOMERGE
+
+
+Graph gnuplot_totals-NOMERGE.png
+
+And so one.
+
+
+To collect another samples (e.g. record file MERGE) and to visually compare
+two record files (e.g. MERGE and NOMERGE), do
+
+sudo ./slabinfo-plotter.sh -r MERGE
+./slabinfo-plotter.sh -p MERGE -b gnuplot
+^C
+./slabinfo-plotter.sh -p MERGE -b gnuplot
+./gnuplot-totals-compare.sh -f gnuplot_totals-MERGE,gnuplot_totals-NOMERGE
+
+Graph gnuplot_totals-MERGE-vs-gnuplot_totals-NOMERGE.png
+
 
 USAGE
 ===============================================================================
@@ -7,8 +42,9 @@ First, we need to collect samples that later will be pre-process and used by a
 plotting program. Different scripts are used for those tasks, because the basic
 design is not to stick to a one and only plotting program, but instead provide
 an ability to implement support for any plotting back-end (gnuplot, PLplot,
-etc.) that fits your own needs.
-
+etc.) that fits your own needs. Apart from that, this split lets you to collect
+samples on a target machine and to generate plots on a host machine (your target
+may be missing gnuplot, etc.).
 
 slabinfo-plotter.sh, thus, provides two functions:
 -- it's a wrapper around slabinfo tool, that is used to collect the data
@@ -90,3 +126,6 @@ All of gnuplot scripts have several options in common:
  Specifies the file name to process.
  NOTE:
  gnuplot-totals-compare.sh requires two files:  -r FILEA,FILEB
+
+
+Sergey Senozhatsky, 2015

@@ -1,0 +1,92 @@
+Sergey Senozhatsky, 2015
+
+USAGE
+===============================================================================
+
+First, we need to collect samples that later will be pre-process and used by a
+plotting program. Different scripts are used for those tasks, because the basic
+design is not to stick to a one and only plotting program, but instead provide
+an ability to implement support for any plotting back-end (gnuplot, PLplot,
+etc.) that fits your own needs.
+
+
+slabinfo-plotter.sh, thus, provides two functions:
+-- it's a wrapper around slabinfo tool, that is used to collect the data
+-- it's a pre-processor that is used to grep | awk | etc. collected samples in
+a plotting back-end specific way
+
+
+NOTE:
+slabinfo tool must be patched in order to provide extended stats and infos.
+Find the kernel patches in kernel_patches/ diretory.
+
+
+To record samples, execute
+slabinfo-plotter.sh -r FILENAME
+
+To pre-process recorded sample execute
+slabinfo-plotter.sh -p FILENANE [-b gnuplot,etc.]
+
+-b option (as of now) is optional; by default script will try to pre-process
+the samples for gnuplot.
+
+
+Other options:
+-n %d 	- tell slabinfo to print only %d first slabs in stats tables
+-s %d	- sleep timeout between samples
+
+
+
+The rest is handled by plotting scripts.
+
+
+GENERATING A PLOT
+===============================================================================
+
+Plot generation is performed by a small scripts, each serving its own purpose.
+As of now, only gnuplot supported and the following scripts are provided:
+
+-- gnuplot-slabs.sh
+   Generate plot based on "Slabs sorted by FOO" slabinfo output (both 'sort by
+   loss' and 'sort by size' files)
+
+   This script handles files with gnuplot_slabs-by-loss-* or
+   gnuplot_slabs-by-size-* in their names.
+
+
+-- gnuplot-totals.sh
+   Generate plot based on Total "Memory usage and Loss" slabinfo output
+
+   This script handles files with gnuplot_totals-* in their names.
+
+
+-- gnuplot-totals-compare.sh
+   Generate plot using two Total "Memory usage and Loss" slabinfo output files,
+   so it's easier to see the differences in slabs' behaviour
+
+   This script handles files with gnuplot_totals-* in their names.
+
+
+
+All of gnuplot scripts have several options in common:
+
+ -r %d,%d
+ This option specifies a range of samples to be plotted. It basically scales
+ the graph for more detailed investigation and at the same  helps when the
+ number of samples is too high to be plotted nicely.
+ See
+	examples/gnuplot_totals-nomerge-vs-gnuplot_totals-nomerge2.png
+	examples/gnuplot_totals-nomerge-vs-gnuplot_totals-nomerge2-r70,350.png
+ or
+	examples/gnuplot_slabs-by-loss-nomerge-r300,600.png
+	examples/gnuplot_slabs-by-loss-nomerge-r450,550.png
+
+
+ -s %d,%d
+ This option lets to redefine generated image width and heigh (pixels)
+
+
+ -f FILE [mandatory]
+ Specifies the file name to process.
+ NOTE:
+ gnuplot-totals-compare.sh requires two files:  -r FILEA,FILEB

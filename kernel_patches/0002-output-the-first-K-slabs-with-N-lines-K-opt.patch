@@ -1,0 +1,78 @@
+From 0cf8914a8bbe5cef8e92e10e36026df65c9a490f Mon Sep 17 00:00:00 2001
+From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+Date: Tue, 8 Sep 2015 00:55:15 +0900
+Subject: [PATCH 2/5] output the first K slabs with `-N|--lines=K' opt
+
+Signed-off-by: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+---
+ tools/vm/slabinfo.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
+index 258ed01..e6f46b6 100644
+--- a/tools/vm/slabinfo.c
++++ b/tools/vm/slabinfo.c
+@@ -79,6 +79,7 @@ int sort_active = 0;
+ int set_debug = 0;
+ int show_ops = 0;
+ int show_activity = 0;
++int show_num_lines = -1;
+ 
+ /* Debug options */
+ int sanity = 0;
+@@ -124,6 +125,7 @@ static void usage(void)
+ 		"-v|--validate          Validate slabs\n"
+ 		"-z|--zero              Include empty slabs\n"
+ 		"-1|--1ref              Single reference\n"
++		"-N|--lines=K           Show the first K slabs\n"
+ 		"\nValid debug options (FZPUT may be combined)\n"
+ 		"a / A          Switch on all debug options (=FZUP)\n"
+ 		"-              Switch off all debug options\n"
+@@ -1242,11 +1244,14 @@ static void output_slabs(void)
+ {
+ 	struct slabinfo *slab;
+ 
+-	for (slab = slabinfo; slab < slabinfo + slabs; slab++) {
++	for (slab = slabinfo; (slab < slabinfo + slabs) &&
++			show_num_lines != 0; slab++) {
+ 
+ 		if (slab->alias)
+ 			continue;
+ 
++		if (show_num_lines != -1)
++			show_num_lines--;
+ 
+ 		if (show_numa)
+ 			slab_numa(slab, 0);
+@@ -1285,6 +1290,7 @@ struct option opts[] = {
+ 	{ "validate", no_argument, NULL, 'v' },
+ 	{ "zero", no_argument, NULL, 'z' },
+ 	{ "1ref", no_argument, NULL, '1'},
++	{ "lines", required_argument, NULL, 'N'},
+ 	{ NULL, 0, NULL, 0 }
+ };
+ 
+@@ -1296,7 +1302,7 @@ int main(int argc, char *argv[])
+ 
+ 	page_size = getpagesize();
+ 
+-	while ((c = getopt_long(argc, argv, "aAd::Defhil1noprstvzTS",
++	while ((c = getopt_long(argc, argv, "aAd::Defhil1noprstvzTSN:",
+ 						opts, NULL)) != -1)
+ 		switch (c) {
+ 		case '1':
+@@ -1358,7 +1364,10 @@ int main(int argc, char *argv[])
+ 		case 'S':
+ 			sort_size = 1;
+ 			break;
+-
++		case 'N':
++			if (optarg)
++				show_num_lines = atoi(optarg);
++			break;
+ 		default:
+ 			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
+ 
+-- 
+2.5.1
+

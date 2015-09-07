@@ -1,0 +1,100 @@
+From 0a7543f2e9606eb5f9d231daaae9e1043162a173 Mon Sep 17 00:00:00 2001
+From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+Date: Tue, 8 Sep 2015 00:55:15 +0900
+Subject: [PATCH 4/5] do not dynamically scale slab size with `-R|--real-size'
+ opt
+
+Signed-off-by: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+---
+ tools/vm/slabinfo.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
+
+diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
+index 2fe3732..b8fbd4b 100644
+--- a/tools/vm/slabinfo.c
++++ b/tools/vm/slabinfo.c
+@@ -81,6 +81,7 @@ int show_ops = 0;
+ int show_activity = 0;
+ int show_num_lines = -1;
+ int sort_loss = 0;
++int real_size = 0;
+ 
+ /* Debug options */
+ int sanity = 0;
+@@ -117,9 +118,9 @@ static void usage(void)
+ 		"-i|--inverted          Inverted list\n"
+ 		"-l|--slabs             Show slabs\n"
+ 		"-n|--numa              Show NUMA information\n"
+-		"-o|--ops		Show kmem_cache_ops\n"
++		"-o|--ops               Show kmem_cache_ops\n"
+ 		"-s|--shrink            Shrink slabs\n"
+-		"-r|--report		Detailed report on single slabs\n"
++		"-r|--report            Detailed report on single slabs\n"
+ 		"-S|--Size              Sort by size\n"
+ 		"-t|--tracking          Show alloc/free information\n"
+ 		"-T|--Totals            Show summary information\n"
+@@ -128,6 +129,7 @@ static void usage(void)
+ 		"-1|--1ref              Single reference\n"
+ 		"-N|--lines=K           Show the first K slabs\n"
+ 		"-L|--sort-loss         Sort by loss\n"
++		"-R|--real-size         Do not scale slab size\n"
+ 		"\nValid debug options (FZPUT may be combined)\n"
+ 		"a / A          Switch on all debug options (=FZUP)\n"
+ 		"-              Switch off all debug options\n"
+@@ -229,15 +231,17 @@ static int store_size(char *buffer, unsigned long value)
+ 	char trailer = 0;
+ 	int n;
+ 
+-	if (value > 1000000000UL) {
+-		divisor = 100000000UL;
+-		trailer = 'G';
+-	} else if (value > 1000000UL) {
+-		divisor = 100000UL;
+-		trailer = 'M';
+-	} else if (value > 1000UL) {
+-		divisor = 100;
+-		trailer = 'K';
++	if (!real_size) {
++		if (value > 1000000000UL) {
++			divisor = 100000000UL;
++			trailer = 'G';
++		} else if (value > 1000000UL) {
++			divisor = 100000UL;
++			trailer = 'M';
++		} else if (value > 1000UL) {
++			divisor = 100;
++			trailer = 'K';
++		}
+ 	}
+ 
+ 	value /= divisor;
+@@ -1301,6 +1305,7 @@ struct option opts[] = {
+ 	{ "1ref", no_argument, NULL, '1'},
+ 	{ "lines", required_argument, NULL, 'N'},
+ 	{ "sort-loss", no_argument, NULL, 'L'},
++	{ "real-size", no_argument, NULL, 'R'},
+ 	{ NULL, 0, NULL, 0 }
+ };
+ 
+@@ -1312,7 +1317,7 @@ int main(int argc, char *argv[])
+ 
+ 	page_size = getpagesize();
+ 
+-	while ((c = getopt_long(argc, argv, "aAd::Defhil1noprstvzTSN:L",
++	while ((c = getopt_long(argc, argv, "aAd::Defhil1noprstvzTSN:LR",
+ 						opts, NULL)) != -1)
+ 		switch (c) {
+ 		case '1':
+@@ -1381,6 +1386,9 @@ int main(int argc, char *argv[])
+ 		case 'L':
+ 			sort_loss = 1;
+ 			break;
++		case 'R':
++			real_size = 1;
++			break;
+ 		default:
+ 			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
+ 
+-- 
+2.5.1
+

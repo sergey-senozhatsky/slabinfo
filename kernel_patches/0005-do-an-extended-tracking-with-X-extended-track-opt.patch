@@ -1,0 +1,180 @@
+From 24e159f76ba1d3b393028cfce329cb59750a66c2 Mon Sep 17 00:00:00 2001
+From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+Date: Tue, 8 Sep 2015 00:55:15 +0900
+Subject: [PATCH 5/5] do an extended tracking with `-X|--extended-track' opt
+
+Signed-off-by: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+---
+ tools/vm/slabinfo.c | 64 +++++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 50 insertions(+), 14 deletions(-)
+
+diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
+index b8fbd4b..da4ddce 100644
+--- a/tools/vm/slabinfo.c
++++ b/tools/vm/slabinfo.c
+@@ -82,6 +82,7 @@ int show_activity = 0;
+ int show_num_lines = -1;
+ int sort_loss = 0;
+ int real_size = 0;
++int extended_track = 0;
+ 
+ /* Debug options */
+ int sanity = 0;
+@@ -130,6 +131,7 @@ static void usage(void)
+ 		"-N|--lines=K           Show the first K slabs\n"
+ 		"-L|--sort-loss         Sort by loss\n"
+ 		"-R|--real-size         Do not scale slab size\n"
++		"-X|--extended-track    Do extended-track output\n"
+ 		"\nValid debug options (FZPUT may be combined)\n"
+ 		"a / A          Switch on all debug options (=FZUP)\n"
+ 		"-              Switch off all debug options\n"
+@@ -307,7 +309,7 @@ static void first_line(void)
+ 	if (show_activity)
+ 		printf("Name                   Objects      Alloc       Free   %%Fast Fallb O CmpX   UL\n");
+ 	else
+-		printf("Name                   Objects Objsize    Space "
++		printf("Name                   Objects Objsize                Space "
+ 			"Slabs/Part/Cpu  O/S O %%Fr %%Ef Flg\n");
+ }
+ 
+@@ -555,7 +557,7 @@ static void report(struct slabinfo *s)
+ 
+ static void slabcache(struct slabinfo *s)
+ {
+-	char size_str[20];
++	char size_str[30];
+ 	char dist_str[40];
+ 	char flags[20];
+ 	char *p = flags;
+@@ -574,7 +576,10 @@ static void slabcache(struct slabinfo *s)
+ 	if (show_empty && s->slabs)
+ 		return;
+ 
+-	store_size(size_str, slab_size(s));
++	if (extended_track)
++		store_size(size_str, slab_waste(s));
++	else
++		store_size(size_str, slab_size(s));
+ 	snprintf(dist_str, 40, "%lu/%lu/%d", s->slabs - s->cpu_slabs,
+ 						s->partial, s->cpu_slabs);
+ 
+@@ -615,15 +620,15 @@ static void slabcache(struct slabinfo *s)
+ 			total_free ? (s->free_fastpath * 100 / total_free) : 0,
+ 			s->order_fallback, s->order, s->cmpxchg_double_fail,
+ 			s->cmpxchg_double_cpu_fail);
+-	}
+-	else
+-		printf("%-21s %8ld %7d %8s %14s %4d %1d %3ld %3ld %s\n",
++	} else {
++		printf("%-21s %8ld %7d %20s %14s %4d %1d %3ld %3ld %s\n",
+ 			s->name, s->objects, s->object_size, size_str, dist_str,
+ 			s->objs_per_slab, s->order,
+ 			s->slabs ? (s->partial * 100) / s->slabs : 100,
+ 			s->slabs ? (s->objects * s->object_size * 100) /
+ 				(s->slabs * (page_size << s->order)) : 100,
+ 			flags);
++	}
+ }
+ 
+ /*
+@@ -1255,16 +1260,17 @@ static void read_slab_dir(void)
+ 
+ static void output_slabs(void)
+ {
++	int lines = show_num_lines;
+ 	struct slabinfo *slab;
+ 
+ 	for (slab = slabinfo; (slab < slabinfo + slabs) &&
+-			show_num_lines != 0; slab++) {
++			lines != 0; slab++) {
+ 
+ 		if (slab->alias)
+ 			continue;
+ 
+-		if (show_num_lines != -1)
+-			show_num_lines--;
++		if (lines != -1)
++			lines--;
+ 
+ 		if (show_numa)
+ 			slab_numa(slab, 0);
+@@ -1285,6 +1291,31 @@ static void output_slabs(void)
+ 	}
+ }
+ 
++static void extended()
++{
++	totals();
++
++	link_slabs();
++	rename_slabs();
++
++	printf("\nSlabs sorted by size\n");
++	printf("----------------------\n");
++	sort_loss = 0;
++	sort_size = 1;
++	extended_track = 0; /* to show slab_size() in Space columnt */
++	sort_slabs();
++	output_slabs();
++
++	printf("\nSlabs sorted by loss\n");
++	printf("----------------------\n");
++	sort_size = 0;
++	sort_loss = 1;
++	extended_track = 1; /* switch to slab_waste() in Space column */
++	sort_slabs();
++	output_slabs();
++	printf("\n");
++}
++
+ struct option opts[] = {
+ 	{ "aliases", no_argument, NULL, 'a' },
+ 	{ "activity", no_argument, NULL, 'A' },
+@@ -1306,6 +1337,7 @@ struct option opts[] = {
+ 	{ "lines", required_argument, NULL, 'N'},
+ 	{ "sort-loss", no_argument, NULL, 'L'},
+ 	{ "real-size", no_argument, NULL, 'R'},
++	{ "extended-track", no_argument, NULL, 'X'},
+ 	{ NULL, 0, NULL, 0 }
+ };
+ 
+@@ -1317,7 +1349,7 @@ int main(int argc, char *argv[])
+ 
+ 	page_size = getpagesize();
+ 
+-	while ((c = getopt_long(argc, argv, "aAd::Defhil1noprstvzTSN:LR",
++	while ((c = getopt_long(argc, argv, "aAd::Defhil1noprstvzTSN:LRX",
+ 						opts, NULL)) != -1)
+ 		switch (c) {
+ 		case '1':
+@@ -1389,6 +1421,9 @@ int main(int argc, char *argv[])
+ 		case 'R':
+ 			real_size = 1;
+ 			break;
++		case 'X':
++			extended_track = 1;
++			break;
+ 		default:
+ 			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
+ 
+@@ -1408,12 +1443,13 @@ int main(int argc, char *argv[])
+ 		fatal("%s: Invalid pattern '%s' code %d\n",
+ 			argv[0], pattern_source, err);
+ 	read_slab_dir();
+-	if (show_alias)
++	if (show_alias) {
+ 		alias();
+-	else
+-	if (show_totals)
++	} else if (extended_track) {
++		extended();
++	} else if (show_totals) {
+ 		totals();
+-	else {
++	} else {
+ 		link_slabs();
+ 		rename_slabs();
+ 		sort_slabs();
+-- 
+2.5.1
+

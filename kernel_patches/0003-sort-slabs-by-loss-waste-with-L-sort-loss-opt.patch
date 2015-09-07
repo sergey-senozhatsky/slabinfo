@@ -1,0 +1,81 @@
+From fa763d82f789fc919e4de189721b68f29baf7322 Mon Sep 17 00:00:00 2001
+From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+Date: Tue, 8 Sep 2015 00:55:15 +0900
+Subject: [PATCH 3/5] sort slabs by loss (waste) with `-L|--sort-loss' opt
+
+Signed-off-by: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+---
+ tools/vm/slabinfo.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
+index e6f46b6..2fe3732 100644
+--- a/tools/vm/slabinfo.c
++++ b/tools/vm/slabinfo.c
+@@ -80,6 +80,7 @@ int set_debug = 0;
+ int show_ops = 0;
+ int show_activity = 0;
+ int show_num_lines = -1;
++int sort_loss = 0;
+ 
+ /* Debug options */
+ int sanity = 0;
+@@ -126,6 +127,7 @@ static void usage(void)
+ 		"-z|--zero              Include empty slabs\n"
+ 		"-1|--1ref              Single reference\n"
+ 		"-N|--lines=K           Show the first K slabs\n"
++		"-L|--sort-loss         Sort by loss\n"
+ 		"\nValid debug options (FZPUT may be combined)\n"
+ 		"a / A          Switch on all debug options (=FZUP)\n"
+ 		"-              Switch off all debug options\n"
+@@ -335,6 +337,11 @@ static unsigned long slab_activity(struct slabinfo *s)
+ 		s->alloc_slowpath + s->free_slowpath;
+ }
+ 
++static unsigned long slab_waste(struct slabinfo *s)
++{
++	return	slab_size(s) - s->objects * s->object_size;
++}
++
+ static void slab_numa(struct slabinfo *s, int mode)
+ {
+ 	int node;
+@@ -1013,6 +1020,8 @@ static void sort_slabs(void)
+ 				result = slab_size(s1) < slab_size(s2);
+ 			else if (sort_active)
+ 				result = slab_activity(s1) < slab_activity(s2);
++			else if (sort_loss)
++				result = slab_waste(s1) < slab_waste(s2);
+ 			else
+ 				result = strcasecmp(s1->name, s2->name);
+ 
+@@ -1291,6 +1300,7 @@ struct option opts[] = {
+ 	{ "zero", no_argument, NULL, 'z' },
+ 	{ "1ref", no_argument, NULL, '1'},
+ 	{ "lines", required_argument, NULL, 'N'},
++	{ "sort-loss", no_argument, NULL, 'L'},
+ 	{ NULL, 0, NULL, 0 }
+ };
+ 
+@@ -1302,7 +1312,7 @@ int main(int argc, char *argv[])
+ 
+ 	page_size = getpagesize();
+ 
+-	while ((c = getopt_long(argc, argv, "aAd::Defhil1noprstvzTSN:",
++	while ((c = getopt_long(argc, argv, "aAd::Defhil1noprstvzTSN:L",
+ 						opts, NULL)) != -1)
+ 		switch (c) {
+ 		case '1':
+@@ -1368,6 +1378,9 @@ int main(int argc, char *argv[])
+ 			if (optarg)
+ 				show_num_lines = atoi(optarg);
+ 			break;
++		case 'L':
++			sort_loss = 1;
++			break;
+ 		default:
+ 			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
+ 
+-- 
+2.5.1
+

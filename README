@@ -14,7 +14,7 @@ File gnuplot_slabs-by-loss-NOMERGE
 File gnuplot_slabs-by-size-NOMERGE
 File gnuplot_totals-NOMERGE
 
-#generate grphs from 'slabinfo totals'
+#generate a plot from 'slabinfo totals'
 ./gnuplot-totals.sh -f gnuplot_totals-NOMERGE
 
 
@@ -126,6 +126,70 @@ All of gnuplot scripts have several options in common:
  Specifies the file name to process.
  NOTE:
  gnuplot-totals-compare.sh requires two files:  -r FILEA,FILEB
+
+
+
+SAMPLES
+===============================================================================
+
+Samples are just a set of numbers and names, one can grep|awk|etc.
+and pickup up any of them depending on the needs.
+
+Samples have:
+-- a seq number "Sample #X" so it's easier to grep the samples file
+-- slabinto -T reporting part
+-- slabinfo `Slabs sorted by size' and `Slabs sorted by loss' tables
+
+Each record file starts with the following lines:
+ uname -r
+ cat /proc/cmdline
+ slabs_pertable:$lines
+
+
+EXAMPLE:
+
+Sample #1
+Slabcache Totals
+----------------
+Slabcaches : 140      Aliases  :   0->0   Active: 109
+Memory used: 244441088   # Loss   : 11651888   MRatio:     5%
+# Objects  : 408174   # PartObj:  11658   ORatio:     2%
+
+Per Cache    Average         Min         Max       Total
+---------------------------------------------------------
+#Objects        3744          11      109154      408174
+#Slabs           140           1        4854       15267
+#PartSlab          4           0         148         528
+%PartSlab         3%          0%         57%          3%
+PartObjs           2           0        6137       11658
+% PartObj         1%          0%         41%          2%
+Memory       2242578        4096   159055872   244441088
+Used         2135680        3360   151677792   232789200
+Loss          106898           0     7378080    11651888
+
+Per Object   Average         Min         Max
+---------------------------------------------
+Memory           573           8        8192
+User             570           8        8192
+Loss               2           0          64
+
+Slabs sorted by size
+----------------------
+Name                   Objects Objsize                Space Slabs/Part/Cpu  O/S O %Fr %Ef Flg
+ext4_inode_cache         87372    1736            159055872      4833/0/21   18 3   0  95 a
+dentry                  109154     288             31997952     3880/36/26   28 1   0  98 a
+inode_cache              12366     864             11255808        680/0/7   18 2   0  94 a
+buffer_head              56628     104              5947392      1438/0/14   39 0   0  99 a
+radix_tree_node           7056     576              4128768        245/0/7   28 2   0  98 a
+
+Slabs sorted by loss
+----------------------
+ext4_inode_cache         87372    1736              7378080      4833/0/21   18 3   0  95 a
+kmalloc-2048              1591    2048               575488      102/37/15   16 3  31  84 
+inode_cache              12366     864               571584        680/0/7   18 2   0  94 a
+dentry                  109154     288               561600     3880/36/26   28 1   0  98 a
+shmem_inode_cache         2055    1040               320400       47/16/28   31 3  21  86 
+
 
 
 Sergey Senozhatsky, 2015

@@ -18,10 +18,10 @@ function usage
 	echo "Usage: gnuplotter.sh -m MODE [-s W,H] [-r XRANGE_MIN,XRANGE_MAX] -f FILE1[,FILE2,...]"
 	echo "FILEs must be preprocess with slabinfo-stats.sh -p -b gnuplot"
 	echo "-m MODE"
-	echo "\ttotals		- plot totals for FILE1[, FILE2, ...]"
-	echo "\tslabs		- plot slabs file"
-	echo "-s	- set generated image width and height"
-	echo "-r	- use only XRANGE_MIN,XRANGE_MAX lines range from the files"
+	echo "       totals	- plot totals for FILE1[, FILE2, ...]"
+	echo "       slabs	- plot slabs file"
+	echo "-s		- set generated image width and height"
+	echo "-r		- use only XRANGE_MIN,XRANGE_MAX lines range from the files"
 }
 
 function do_slabs_plotting

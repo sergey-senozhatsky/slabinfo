@@ -74,8 +74,9 @@ set autoscale xy
 set xlabel 'samples'
 set ylabel 'bytes'
 set style histogram columnstacked title textcolor lt -1
-set style fill solid 0.30 border lt -1
+set style fill solid 0.30
 set xtic rotate 90
+set key left above Left title reverse
 
 plot "${data_files[0]}" $range u 2$xtic title 'SIZE' with boxes, '' $range u 3 title 'LOSS' with boxes
 EOF
@@ -106,6 +107,7 @@ set autoscale xy
 set output '$output.png'
 set xlabel 'samples'
 set ylabel 'bytes'
+set key left above Left title reverse
 
 plot $gnuplot_cmd
 EOF

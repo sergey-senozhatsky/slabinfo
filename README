@@ -86,11 +86,9 @@ As of now, only gnuplot supported by gnuplotter.sh script:
  the graph for more detailed investigation and at the same  helps when the
  number of samples is too high to be plotted nicely.
  See
-	examples/totals-nomerge-vs-totals-nomerge2.png
-	examples/totals-nomerge-vs-totals-nomerge2-r70,350.png
- or
-	examples/slabs-by-loss-nomerge-r300,600.png
-	examples/slabs-by-loss-nomerge-r450,550.png
+	examples/gcc-slabs-by-loss-full.png
+	examples/gcc-slabs-by-loss-r1400x1600.png
+	examples/gcc-slabs-by-loss-r1450,1500.png
 
  -s %d,%d
  This option lets to redefine generated image width and heigh (pixels)

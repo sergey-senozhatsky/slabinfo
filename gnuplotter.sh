@@ -15,13 +15,50 @@ mode=""
 
 function usage
 {
-	echo "Usage: gnuplotter.sh -m MODE [-s W,H] [-r XRANGE_MIN,XRANGE_MAX] -f FILE1[,FILE2,...]"
-	echo "FILEs must be preprocess with slabinfo-stats.sh -p -b gnuplot"
-	echo "-m MODE"
-	echo "       totals	- plot totals for FILE1[, FILE2, ...]"
-	echo "       slabs	- plot slabs file"
-	echo "-s		- set generated image width and height"
-	echo "-r		- use only XRANGE_MIN,XRANGE_MAX lines range from the files"
+	echo "Usage: gnuplotter.sh -t FILE1[,FILE2,...] [-l FILE] [-s W,H] [-r XRANGE_MIN,XRANGE_MAX]"
+	echo "FILEs must be preprocess with -p"
+	echo "-t FILE1[,FILE2,...]	- plot totals for FILE1[, FILE2, ...]"
+	echo "-l FILE			- plot slabs file"
+	echo "-p FILE1[,FILE2,...]	- pre-process RECORD file(-s)"
+	echo "-s %d,%d			- set generated image width and height"
+	echo "-r %d,%d			- use only XRANGE_MIN,XRANGE_MAX lines range from the files"
+}
+
+function do_preprocess
+{
+	file=$1
+	lines=`head -3 $file | grep slabs_pertable | sed s/slabs_pertable://`
+
+	if [ "z$lines" = "z" ]; then
+		echo "Unable to recognize file format"
+		exit 1
+	fi
+
+	if [ $lines -lt 1 ]; then
+		echo "Unable to recognize file format"
+		exit 1
+	fi
+
+	#let lines=$lines+1
+	# we extrct only 'TOP' slab
+	let lines=2
+	`cat $file | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
+		 | awk '{print $1" "$4+$2*$3" "$4}' > gnuplot_slabs-by-loss-$file`
+	if [ $? == 0 ]; then
+		echo "File gnuplot_slabs-by-loss-$file"
+	fi
+
+	let lines=$lines+1
+	`cat $file | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
+		| awk '{print $1" "$4" "$4-$2*$3}' > gnuplot_slabs-by-size-$file`
+	if [ $? == 0 ]; then
+		echo "File gnuplot_slabs-by-size-$file"
+	fi
+
+	`cat $file | grep "Memory used" | awk '{print $3" "$7}' > gnuplot_totals-$file`
+	if [ $? == 0 ]; then
+		echo "File gnuplot_totals-$file"
+	fi
 }
 
 function do_slabs_plotting
@@ -78,12 +115,21 @@ plot $gnuplot_cmd
 EOF
 }
 
-while getopts "m:r::s::f::" opt; do
+while getopts "p::r::s::t::l::" opt; do
 	case $opt in
-		m)
-			mode=$OPTARG
+		p)
+			data_files=(${OPTARG//,/ })
+			for i in ${data_files[@]}; do
+				do_preprocess $i
+			done
+			exit 0
 			;;
-		f)
+		t)
+			mode=totals
+			data_files=(${OPTARG//,/ })
+			;;
+		l)
+			mode=slabs
 			data_files=(${OPTARG//,/ })
 			;;
 		s)
@@ -118,5 +164,9 @@ case $mode in
 		;;
 	slabs)
 		do_slabs_plotting
+		;;
+	\?)
+		echo "Invalid option $mode" >&2
+		usage
 		;;
 esac

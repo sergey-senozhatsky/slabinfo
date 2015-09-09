@@ -9,7 +9,7 @@ sudo ./slabinfo-stats.sh -r NOMERGE
 #^C or reboot
 
 #pre-process records file for gnuplot
-./slabinfo-stats.sh -p FILE1[,FILE2,...] -b gnuplot
+./gnuplotter.sh -p FILE1[,FILE2,...]
 File gnuplot_slabs-by-loss-FILE1
 File gnuplot_slabs-by-size-FILE1
 File gnuplot_totals-FILE1
@@ -17,19 +17,19 @@ File gnuplot_totals-FILE1
 
 
 #generate a plot from 'slabinfo totals'
-./gnuplotter.sh -m totals -f gnuplot_totals-NOMERGE
+./gnuplotter.sh -t gnuplot_totals-NOMERGE
 
 To collect another samples (e.g. record file MERGE) and to visually compare
 two record files (e.g. MERGE and NOMERGE), do
 
 sudo ./slabinfo-stats.sh -r MERGE
-./slabinfo-stats.sh -p MERGE -b gnuplot
+./gnuplotter.sh -p MERGE
 ^C
-./gnuplotter.sh -m totals -f gnuplot_totals-MERGE,gnuplot_totals-NOMERGE
+./gnuplotter.sh -t gnuplot_totals-MERGE,gnuplot_totals-NOMERGE
 
 etc.
 
-'gnuplotter.sh -m totals -f'   accepts any number of RECORD files.
+gnuplotter.sh -p and -t    accept any number of RECORD files.
 
 
 USAGE
@@ -40,14 +40,11 @@ plotting program. Different scripts are used for those tasks, because the basic
 design is not to stick to a one and only plotting program, but instead provide
 an ability to implement support for any plotting back-end (gnuplot, PLplot,
 etc.) that fits your own needs. Apart from that, this split lets you to collect
-samples on a target machine and to generate plots on a host machine (your target
-may be missing gnuplot, etc.).
+samples on a target and to generate plots on a host pc (your target may be
+missing gnuplot, etc.).
 
-slabinfo-stats.sh, thus, provides two functions:
--- it's a wrapper around slabinfo tool, that is used to collect the data
--- it's a pre-processor that is used to grep | awk | etc. collected samples in
-a plotting back-end specific way
-
+slabinfo-stats.sh is just a wrapper around slabinfo tool, which is used to
+collect the data.
 
 NOTE:
 slabinfo tool must be patched in order to provide extended stats and info.
@@ -56,12 +53,6 @@ Find the kernel patches in kernel_patches/ directory.
 
 To record samples, execute
 slabinfo-stats.sh -r FILE
-
-To pre-process recorded sample file(-s) execute
-slabinfo-stats.sh -p FILE1,[,FILE2,...] [-b gnuplot,etc.]
-
--b option (as of now) is optional; by default script will try to pre-process
-the samples for gnuplot.
 
 
 Other options:
@@ -77,7 +68,7 @@ GENERATING A PLOT
 
 As of now, only gnuplot supported by gnuplotter.sh script:
 
- -m  slabs
+ -l FILE1[, FILE2, ...]
    Generate plot based on "Slabs sorted by FOO" slabinfo output (both 'sort by
    loss' and 'sort by size' files)
 
@@ -85,7 +76,7 @@ As of now, only gnuplot supported by gnuplotter.sh script:
    gnuplot_slabs-by-size-* in their names.
 
 
- -m  totals
+ -t FILE1[, FILE2, ...]
    Generate plot based on Total "Memory usage and Loss" slabinfo output
 
    This script handles files with gnuplot_totals-* in their names.
@@ -101,13 +92,11 @@ As of now, only gnuplot supported by gnuplotter.sh script:
 	examples/gnuplot_slabs-by-loss-nomerge-r300,600.png
 	examples/gnuplot_slabs-by-loss-nomerge-r450,550.png
 
-
  -s %d,%d
  This option lets to redefine generated image width and heigh (pixels)
 
-
- -f FILE1 [,FILE2,...]    (mandatory)
- Specifies the file(-s) to process.
+ -p FILE1,[,FILE2,...]
+ Pre-process files
 
 
 SAMPLES

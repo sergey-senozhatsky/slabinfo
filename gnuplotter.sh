@@ -12,6 +12,7 @@ xmax=0
 width=1500
 height=700
 data_file=""
+t_files=""
 mode=""
 
 function usage
@@ -25,40 +26,9 @@ function usage
 	echo "-r %d,%d			- use data from a given range"
 }
 
-function do_preprocess
-{
-	if=$1
-
-	# use only 'TOP' slab (biggest memory usage or loss)
-	let lines=2
-	of="$if-slabs-by-loss"
-	`cat $if | grep -A $lines 'Slabs sorted by loss' |\
-		egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4+$2*$3" "$4}' > $of`
-	if [ $? == 0 ]; then
-		echo "File $of"
-	fi
-
-	let lines=3
-	of="$if-slabs-by-size"
-	`cat $if | grep -A $lines 'Slabs sorted by size' |\
-		egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4" "$4-$2*$3}' > $of`
-	if [ $? == 0 ]; then
-		echo "File $of"
-	fi
-
-	of="$if-totals"
-	`cat $if | grep "Memory used" |\
-		awk '{print $3" "$7}' > $of`
-	if [ $? == 0 ]; then
-		echo "File $of"
-	fi
-}
-
 function do_slabs_plotting
 {
-	if=$1
+	inf=$1
 	range="every ::$xmin"
 	xtic=""
 
@@ -76,7 +46,7 @@ gnuplot -p << EOF
 #!/usr/bin/env gnuplot
 
 set terminal png enhanced size $width,$height
-set output '$if.png'
+set output '$inf.png'
 set autoscale xy
 set xlabel 'samples'
 set ylabel 'bytes'
@@ -85,7 +55,7 @@ set style fill solid 0.30
 set xtic rotate 90
 set key left above Left title reverse
 
-plot "$if" $range u 2$xtic title 'SIZE' with boxes,\
+plot "$inf" $range u 2$xtic title 'SIZE' with boxes,\
 	'' $range u 3 title 'LOSS' with boxes
 EOF
 }
@@ -101,7 +71,7 @@ function do_totals_plotting
 	fi
 
 	# have no idea how to force `plot for loop' to do the same
-	for i in ${data_files[@]}; do
+	for i in ${t_files[@]}; do
 		output="$output$i"
 		gnuplot_cmd="$gnuplot_cmd '$i' $range using 1 title\
 			'$i Memory usage' with lines,"
@@ -123,6 +93,38 @@ plot $gnuplot_cmd
 EOF
 }
 
+function do_preprocess
+{
+	if=$1
+
+	# use only 'TOP' slab (biggest memory usage or loss)
+	let lines=2
+	of="$if-slabs-by-loss"
+	`cat $if | grep -A $lines 'Slabs sorted by loss' |\
+		egrep -iv '\-\-|Name|Slabs'\
+		| awk '{print $1" "$4+$2*$3" "$4}' > $of`
+	if [ $? = 0 ]; then
+		do_slabs_plotting $of
+	fi
+
+	let lines=3
+	of="$if-slabs-by-size"
+	`cat $if | grep -A $lines 'Slabs sorted by size' |\
+		egrep -iv '\-\-|Name|Slabs'\
+		| awk '{print $1" "$4" "$4-$2*$3}' > $of`
+	if [ $? = 0 ]; then
+		do_slabs_plotting $of
+	fi
+
+	of="$if-totals"
+	`cat $if | grep "Memory used" |\
+		awk '{print $3" "$7}' > $of`
+	if [ $? = 0 ]; then
+		t_files[0]=$of
+		do_totals_plotting
+	fi
+}
+
 while getopts "p::r::s::t::l::" opt; do
 	case $opt in
 		p)
@@ -130,11 +132,10 @@ while getopts "p::r::s::t::l::" opt; do
 			for i in ${data_files[@]}; do
 				do_preprocess $i
 			done
-			exit 0
 			;;
 		t)
 			mode=totals
-			data_files=(${OPTARG//,/ })
+			t_files=(${OPTARG//,/ })
 			;;
 		l)
 			mode=slabs
@@ -142,7 +143,6 @@ while getopts "p::r::s::t::l::" opt; do
 			for i in ${data_files[@]}; do
 				do_slabs_plotting $i
 			done
-			exit 0
 			;;
 		s)
 			array=(${OPTARG//,/ })

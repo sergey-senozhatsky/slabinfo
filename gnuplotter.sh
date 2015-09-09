@@ -7,9 +7,10 @@
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
 
-xmin_range=0
-xmax_range=0
-size="1500,700"
+xmin=0
+xmax=0
+width=1500
+height=700
 data_file=""
 mode=""
 
@@ -20,27 +21,15 @@ function usage
 	echo "-t FILE1[,FILE2,...]	- plot totals for FILE1[, FILE2, ...]"
 	echo "-l FILE			- plot slabs file"
 	echo "-p FILE1[,FILE2,...]	- pre-process RECORD file(-s)"
-	echo "-s %d,%d			- set generated image width and height"
+	echo "-s %d,%d			- set generated image width and heightt"
 	echo "-r %d,%d			- use only XRANGE_MIN,XRANGE_MAX lines range from the files"
 }
 
 function do_preprocess
 {
 	file=$1
-	lines=`head -3 $file | grep slabs_pertable | sed s/slabs_pertable://`
 
-	if [ "z$lines" = "z" ]; then
-		echo "Unable to recognize file format"
-		exit 1
-	fi
-
-	if [ $lines -lt 1 ]; then
-		echo "Unable to recognize file format"
-		exit 1
-	fi
-
-	#let lines=$lines+1
-	# we extrct only 'TOP' slab
+	# use only 'TOP' slab (biggest memory usage or loss)
 	let lines=2
 	`cat $file | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
 		 | awk '{print $1" "$4+$2*$3" "$4}' > gnuplot_slabs-by-loss-$file`
@@ -48,7 +37,7 @@ function do_preprocess
 		echo "File gnuplot_slabs-by-loss-$file"
 	fi
 
-	let lines=$lines+1
+	let lines=3
 	`cat $file | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
 		| awk '{print $1" "$4" "$4-$2*$3}' > gnuplot_slabs-by-size-$file`
 	if [ $? == 0 ]; then
@@ -63,16 +52,23 @@ function do_preprocess
 
 function do_slabs_plotting
 {
-	range="every ::$xmin_range"
+	range="every ::$xmin"
+	xtic=""
 
-	if [ $xmax_range != 0 ]; then
-		range="$range::$xmax_range"
+	if [ $xmax != 0 ]; then
+		range="$range::$xmax"
+
+		if [ $(($width / $(($xmax-$xmin)))) -gt 5 ]; then
+			xtic=":xtic(1)"
+		else
+			echo "Output size is too small, avoid printing slab names"
+		fi
 	fi
 
 gnuplot -p << EOF
 #!/usr/bin/env gnuplot
 
-set terminal png enhanced size $size
+set terminal png enhanced size $width,$height
 set output '${data_files[0]}.png'
 set autoscale xy
 set xlabel 'samples'
@@ -81,18 +77,18 @@ set style histogram columnstacked title textcolor lt -1
 set style fill solid 0.30 border lt -1
 set xtic rotate 90
 
-plot "${data_files[0]}" $range u 2:xtic(1) title 'SIZE' with boxes, '' $range u 3 title 'LOSS' with boxes
+plot "${data_files[0]}" $range u 2$xtic title 'SIZE' with boxes, '' $range u 3 title 'LOSS' with boxes
 EOF
 }
 
 function do_totals_plotting
 {
 	gnuplot_cmd=""
-	range="every ::$xmin_range"
+	range="every ::$xmin"
 	output=""
 
-	if [ $xmax_range != 0 ]; then
-		range="$range::$xmax_range"
+	if [ $xmax != 0 ]; then
+		range="$range::$xmax"
 	fi
 
 	# have no idea how to force `plot for loop' to do the same
@@ -105,7 +101,7 @@ function do_totals_plotting
 gnuplot -p << EOF
 #!/usr/bin/env gnuplot
 
-set terminal png enhanced size $size
+set terminal png enhanced size $width,$height
 set autoscale xy
 set output '$output.png'
 set xlabel 'samples'
@@ -133,12 +129,14 @@ while getopts "p::r::s::t::l::" opt; do
 			data_files=(${OPTARG//,/ })
 			;;
 		s)
-			size=$OPTARG
+			array=(${OPTARG//,/ })
+			width=${array[0]}
+			height=${array[1]}
 			;;
 		r)
 			array=(${OPTARG//,/ })
-			xmin_range=${array[0]}
-			xmax_range=${array[1]}
+			xmin=${array[0]}
+			xmax=${array[1]}
 			;;
 		\?)
 			echo "Invalid option: -$OPTARG" >&2

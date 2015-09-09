@@ -27,26 +27,29 @@ function usage
 
 function do_preprocess
 {
-	file=$1
+	if=$1
 
 	# use only 'TOP' slab (biggest memory usage or loss)
 	let lines=2
-	`cat $file | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
-		 | awk '{print $1" "$4+$2*$3" "$4}' > slabs-by-loss-$file`
+	of="$if-slabs-by-loss"
+	`cat $if | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
+		 | awk '{print $1" "$4+$2*$3" "$4}' > $of`
 	if [ $? == 0 ]; then
-		echo "File slabs-by-loss-$file"
+		echo "File $of"
 	fi
 
 	let lines=3
-	`cat $file | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4" "$4-$2*$3}' > slabs-by-size-$file`
+	of="$if-slabs-by-size"
+	`cat $if | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
+		| awk '{print $1" "$4" "$4-$2*$3}' > $of`
 	if [ $? == 0 ]; then
-		echo "File slabs-by-size-$file"
+		echo "File $of"
 	fi
 
-	`cat $file | grep "Memory used" | awk '{print $3" "$7}' > totals-$file`
+	of="$if-totals"
+	`cat $if | grep "Memory used" | awk '{print $3" "$7}' > $of`
 	if [ $? == 0 ]; then
-		echo "File totals-$file"
+		echo "File $of"
 	fi
 }
 

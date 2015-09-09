@@ -32,21 +32,21 @@ function do_preprocess
 	# use only 'TOP' slab (biggest memory usage or loss)
 	let lines=2
 	`cat $file | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
-		 | awk '{print $1" "$4+$2*$3" "$4}' > gnuplot_slabs-by-loss-$file`
+		 | awk '{print $1" "$4+$2*$3" "$4}' > slabs-by-loss-$file`
 	if [ $? == 0 ]; then
-		echo "File gnuplot_slabs-by-loss-$file"
+		echo "File slabs-by-loss-$file"
 	fi
 
 	let lines=3
 	`cat $file | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4" "$4-$2*$3}' > gnuplot_slabs-by-size-$file`
+		| awk '{print $1" "$4" "$4-$2*$3}' > slabs-by-size-$file`
 	if [ $? == 0 ]; then
-		echo "File gnuplot_slabs-by-size-$file"
+		echo "File slabs-by-size-$file"
 	fi
 
-	`cat $file | grep "Memory used" | awk '{print $3" "$7}' > gnuplot_totals-$file`
+	`cat $file | grep "Memory used" | awk '{print $3" "$7}' > totals-$file`
 	if [ $? == 0 ]; then
-		echo "File gnuplot_totals-$file"
+		echo "File totals-$file"
 	fi
 }
 

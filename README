@@ -10,14 +10,14 @@ sudo ./slabinfo-stats.sh -r NOMERGE
 
 #pre-process records file for gnuplot
 ./gnuplotter.sh -p FILE1[,FILE2,...]
-File gnuplot_slabs-by-loss-FILE1
-File gnuplot_slabs-by-size-FILE1
-File gnuplot_totals-FILE1
+File slabs-by-loss-FILE1
+File slabs-by-size-FILE1
+File totals-FILE1
 ...
 
 
 #generate a plot from 'slabinfo totals'
-./gnuplotter.sh -t gnuplot_totals-NOMERGE
+./gnuplotter.sh -t totals-NOMERGE
 
 To collect another samples (e.g. record file MERGE) and to visually compare
 two record files (e.g. MERGE and NOMERGE), do
@@ -25,7 +25,7 @@ two record files (e.g. MERGE and NOMERGE), do
 sudo ./slabinfo-stats.sh -r MERGE
 ./gnuplotter.sh -p MERGE
 ^C
-./gnuplotter.sh -t gnuplot_totals-MERGE,gnuplot_totals-NOMERGE
+./gnuplotter.sh -t totals-MERGE,totals-NOMERGE
 
 etc.
 
@@ -72,25 +72,25 @@ As of now, only gnuplot supported by gnuplotter.sh script:
    Generate plot based on "Slabs sorted by FOO" slabinfo output (both 'sort by
    loss' and 'sort by size' files)
 
-   This script handles files with gnuplot_slabs-by-loss-* or
-   gnuplot_slabs-by-size-* in their names.
+   This script handles files with slabs-by-loss-* or
+   slabs-by-size-* in their names.
 
 
  -t FILE1[, FILE2, ...]
    Generate plot based on Total "Memory usage and Loss" slabinfo output
 
-   This script handles files with gnuplot_totals-* in their names.
+   This script handles files with totals-* in their names.
 
  -r %d,%d
  This option specifies a range of samples to be plotted. It basically scales
  the graph for more detailed investigation and at the same  helps when the
  number of samples is too high to be plotted nicely.
  See
-	examples/gnuplot_totals-nomerge-vs-gnuplot_totals-nomerge2.png
-	examples/gnuplot_totals-nomerge-vs-gnuplot_totals-nomerge2-r70,350.png
+	examples/totals-nomerge-vs-totals-nomerge2.png
+	examples/totals-nomerge-vs-totals-nomerge2-r70,350.png
  or
-	examples/gnuplot_slabs-by-loss-nomerge-r300,600.png
-	examples/gnuplot_slabs-by-loss-nomerge-r450,550.png
+	examples/slabs-by-loss-nomerge-r300,600.png
+	examples/slabs-by-loss-nomerge-r450,550.png
 
  -s %d,%d
  This option lets to redefine generated image width and heigh (pixels)

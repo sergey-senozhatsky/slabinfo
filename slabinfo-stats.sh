@@ -18,16 +18,17 @@ function usage
 {
 	echo "slabinfo-plotter.sh MODE [-s SLEEP TIMEOUT] PLOTTING_BACKEND"
 	echo "MODE:"
-	echo "-r FILENAME	- record samples to file RECORD"
-	echo "-p FILENAME	- pre-process RECORD file"
-	echo "-b BACKEND	- plotting backend (gnuplot, etc.)"
-	echo "-n %d		- print only N first slabs in stats"
+	echo "-r FILE			- record samples to file RECORD"
+	echo "-p FILE1[,FILE2,...]	- pre-process RECORD file"
+	echo "-b BACKEND		- plotting backend (gnuplot, etc.)"
+	echo "-n %d			- print only N first slabs in stats"
 	exit 1
 }
 
 function do_gnuplot_preprocess
 {
-	lines=`head -3 $record_file | grep slabs_pertable | sed s/slabs_pertable://`
+	file=$1
+	lines=`head -3 $file | grep slabs_pertable | sed s/slabs_pertable://`
 	
 	if [ "z$lines" = "z" ]; then
 		echo "Unable to recognize file format"
@@ -42,22 +43,22 @@ function do_gnuplot_preprocess
 	#let lines=$lines+1
 	# we extrct only 'TOP' slab
 	let lines=2
-	`cat $record_file | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
-		 | awk '{print $1" "$4+$2*$3" "$4}' > gnuplot_slabs-by-loss-$record_file`
+	`cat $file | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
+		 | awk '{print $1" "$4+$2*$3" "$4}' > gnuplot_slabs-by-loss-$file`
 	if [ $? == 0 ]; then
-		echo "File gnuplot_slabs-by-loss-$record_file"
+		echo "File gnuplot_slabs-by-loss-$file"
 	fi
 
 	let lines=$lines+1
-	`cat $record_file | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4" "$4-$2*$3}' > gnuplot_slabs-by-size-$record_file`
+	`cat $file | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
+		| awk '{print $1" "$4" "$4-$2*$3}' > gnuplot_slabs-by-size-$file`
 	if [ $? == 0 ]; then
-		echo "File gnuplot_slabs-by-size-$record_file"
+		echo "File gnuplot_slabs-by-size-$file"
 	fi
 
-	`cat $record_file | grep "Memory used" | awk '{print $3" "$7}' > gnuplot_totals-$record_file`
+	`cat $file | grep "Memory used" | awk '{print $3" "$7}' > gnuplot_totals-$file`
 	if [ $? == 0 ]; then
-		echo "File gnuplot_totals-$record_file"
+		echo "File gnuplot_totals-$file"
 	fi
 }
 
@@ -85,7 +86,7 @@ while getopts "r:p:s:n:b:" opt; do
 			;;
 		p)
 			mode=preprocess
-			record_file=$OPTARG
+			record_file=(${OPTARG//,/ })
 			;;
 		s)
 			sleepts=$OPTARG
@@ -118,7 +119,9 @@ case $mode in
 		;;
 	preprocess)
 		if [ "z$plotting_backend" = "zgnuplot" ]; then
-			do_gnuplot_preprocess
+			for i in ${record_file[@]}; do
+				do_gnuplot_preprocess $i
+			done
 		else
 			echo "Unsupported b=plotting backend: $plotting_backend" >&2
 			exit 1

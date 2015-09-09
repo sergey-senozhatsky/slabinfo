@@ -9,10 +9,12 @@ sudo ./slabinfo-stats.sh -r NOMERGE
 #^C or reboot
 
 #pre-process records file for gnuplot
-./slabinfo-stats.sh -p NOMERGE -b gnuplot
-File gnuplot_slabs-by-loss-NOMERGE
-File gnuplot_slabs-by-size-NOMERGE
-File gnuplot_totals-NOMERGE
+./slabinfo-stats.sh -p FILE1[,FILE2,...] -b gnuplot
+File gnuplot_slabs-by-loss-FILE1
+File gnuplot_slabs-by-size-FILE1
+File gnuplot_totals-FILE1
+...
+
 
 #generate a plot from 'slabinfo totals'
 ./gnuplotter.sh -m totals -f gnuplot_totals-NOMERGE
@@ -55,8 +57,8 @@ Find the kernel patches in kernel_patches/ directory.
 To record samples, execute
 slabinfo-stats.sh -r FILE
 
-To pre-process recorded sample execute
-slabinfo-stats.sh -p FILE [-b gnuplot,etc.]
+To pre-process recorded sample file(-s) execute
+slabinfo-stats.sh -p FILE1,[,FILE2,...] [-b gnuplot,etc.]
 
 -b option (as of now) is optional; by default script will try to pre-process
 the samples for gnuplot.

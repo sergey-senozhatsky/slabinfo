@@ -15,7 +15,7 @@ mode=""
 
 function usage
 {
-	echo "Usage: gnutplotter.sh -m MODE [-s W,H] [-r XRANGE_MIN,XRANGE_MAX] -f FILE1[,FILE2,...]"
+	echo "Usage: gnuplotter.sh -m MODE [-s W,H] [-r XRANGE_MIN,XRANGE_MAX] -f FILE1[,FILE2,...]"
 	echo "FILEs must be preprocess with slabinfo-stats.sh -p -b gnuplot"
 	echo "-m MODE"
 	echo "\ttotals		- plot totals for FILE1[, FILE2, ...]"

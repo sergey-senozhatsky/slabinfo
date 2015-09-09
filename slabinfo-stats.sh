@@ -12,54 +12,15 @@ slabinfo=slabinfo
 record_file=""
 lines=5
 mode=""
-plotting_backend=gnuplot
 
 function usage
 {
 	echo "slabinfo-plotter.sh MODE [-s SLEEP TIMEOUT] PLOTTING_BACKEND"
 	echo "MODE:"
 	echo "-r FILE			- record samples to file RECORD"
-	echo "-p FILE1[,FILE2,...]	- pre-process RECORD file"
-	echo "-b BACKEND		- plotting backend (gnuplot, etc.)"
 	echo "-n %d			- print only N first slabs in stats"
+	echo "-s %d			- samples recording timeout"
 	exit 1
-}
-
-function do_gnuplot_preprocess
-{
-	file=$1
-	lines=`head -3 $file | grep slabs_pertable | sed s/slabs_pertable://`
-	
-	if [ "z$lines" = "z" ]; then
-		echo "Unable to recognize file format"
-		exit 1
-	fi
-
-	if [ $lines -lt 1 ]; then
-		echo "Unable to recognize file format"
-		exit 1
-	fi
-
-	#let lines=$lines+1
-	# we extrct only 'TOP' slab
-	let lines=2
-	`cat $file | grep -A $lines 'Slabs sorted by loss' | egrep -iv '\-\-|Name|Slabs'\
-		 | awk '{print $1" "$4+$2*$3" "$4}' > gnuplot_slabs-by-loss-$file`
-	if [ $? == 0 ]; then
-		echo "File gnuplot_slabs-by-loss-$file"
-	fi
-
-	let lines=$lines+1
-	`cat $file | grep -A $lines 'Slabs sorted by size' | egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4" "$4-$2*$3}' > gnuplot_slabs-by-size-$file`
-	if [ $? == 0 ]; then
-		echo "File gnuplot_slabs-by-size-$file"
-	fi
-
-	`cat $file | grep "Memory used" | awk '{print $3" "$7}' > gnuplot_totals-$file`
-	if [ $? == 0 ]; then
-		echo "File gnuplot_totals-$file"
-	fi
 }
 
 function do_record
@@ -78,21 +39,13 @@ function do_record
 	done
 }
 
-while getopts "r:p:s:n:b:" opt; do
+while getopts "r:s:n:" opt; do
 	case $opt in
 		r)
-			mode=record
 			record_file=$OPTARG
-			;;
-		p)
-			mode=preprocess
-			record_file=(${OPTARG//,/ })
 			;;
 		s)
 			sleepts=$OPTARG
-			;;
-		b)
-			plotting_backend=$OPTARG
 			;;
 		n)
 			lines=$OPTARG
@@ -113,22 +66,10 @@ done
 
 shift $(( OPTIND - 1 ))
 
-case $mode in
-	record)
-		do_record
-		;;
-	preprocess)
-		if [ "z$plotting_backend" = "zgnuplot" ]; then
-			for i in ${record_file[@]}; do
-				do_gnuplot_preprocess $i
-			done
-		else
-			echo "Unsupported b=plotting backend: $plotting_backend" >&2
-			exit 1
-		fi
-		;;
-	\?)
-		echo "Invalid option $mode" >&2
-		usage
-		;;
-esac
+if [ "$zrecord_file" = "z" ]; then
+	echo "Record file must be provided"
+	usage
+	exit 1
+fi
+
+do_record

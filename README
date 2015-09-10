@@ -3,29 +3,26 @@ TL;DL
 
 A quick tutorial
 
-# start collecting samples, record file name is NOMERGE, note sudo
-sudo ./slabinfo-stats.sh -r NOMERGE
+To start collecting samples, record file name is NOMERGE (note sudo)
+ sudo slabinfo-stats.sh -r NOMERGE
 
-#^C or reboot
+^C or reboot
 
-#pre-process records file for gnuplot
-./gnuplotter.sh -p FILE1[,FILE2,...]
-File FILE1-slabs-by-loss
-File FILE1-slabs-by-size
-File FILE1-totals
-...
+Pre-process records file(s) (this will also generate graphs)
+ gnuplotter.sh -p FILE1[,FILE2,...]
 
 
-#generate a plot from 'slabinfo totals'
-./gnuplotter.sh -t NOMERGE-totals
+If you want to regenerate graph individually (e.g. with -r 100,200) then
+do (for example):
+ gnuplotter.sh -r 100,200 -l NOMERGE-slabs-by-loss
 
 To collect another samples (e.g. record file MERGE) and to visually compare
 two record files (e.g. MERGE and NOMERGE), do
 
 sudo ./slabinfo-stats.sh -r MERGE
-./gnuplotter.sh -p MERGE
+ gnuplotter.sh -p MERGE
 ^C
-./gnuplotter.sh -t MERGE-totals,NOMERGE-totals
+ gnuplotter.sh -t MERGE-totals,NOMERGE-totals
 
 etc.
 

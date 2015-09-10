@@ -1,11 +1,31 @@
 #!/bin/sh
 
 # Sergey Senozhatsky, 2015
+# sergey.senozhatsky.work@gmail.com
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This software is licensed under the terms of the GNU General Public
+# License version 2, as published by the Free Software Foundation, and
+# may be copied, distributed, and modified under those terms.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+
+# This program is intended to plot a `slabinfo -X' stats, collected,
+# for example, using the following command:
+#   while [ 1 ]; do slabinfo -N 1 -R -X >> stats; sleep 1; done
+#
+# Use `gnuplotter.sh -p stats' to pre-process collected records
+# and generate graphs (for totals, slabs sorted by size, slabs
+# sorted by size).
+#
+# Graphs can be [individually] regenerate with different ranges and
+# size (-r %d,%d and -s %d,%d options).
+#
+# To visually compare N `totals' graphs, do
+# gnuplotter.sh -t FILE1, FILE2,...,FILEN
 
 xmin=0
 xmax=0
@@ -23,7 +43,7 @@ function usage
 	echo "-l FILE1[,FILE2, ...]	- plot slabs stats for FILEs"
 	echo "-p FILE1[,FILE2, ...]	- pre-process RECORD file(-s)"
 	echo "-s %d,%d			- set image width and height"
-	echo "-r %d,%d			- use data from a given range"
+	echo "-r %d,%d			- use data samples from a given range"
 }
 
 function do_slabs_plotting

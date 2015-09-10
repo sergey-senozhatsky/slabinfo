@@ -3,13 +3,13 @@ TL;DL
 
 A quick tutorial
 
-To start collecting samples, record file name is NOMERGE (note sudo)
+To start collecting samples (note sudo)
  sudo slabinfo-stats.sh -r NOMERGE
 
 ^C or reboot
 
 Pre-process records file(s) (this will also generate graphs)
- gnuplotter.sh -p FILE1[,FILE2,...]
+ gnuplotter.sh -p NOMERGE[,FILE2,...]
 
 
 If you want to regenerate graph individually (e.g. with -r 100,200) then

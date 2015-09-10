@@ -18,7 +18,7 @@ mode=""
 function usage
 {
 	echo "Usage: gnuplotter.sh -t FILEs [-l FILEs] [-s W,H] [-r MIN,MAX]"
-	echo "FILEs must be preprocess with -p"
+	echo "FILEs must be captured with `slabinfo -N %d -R -X`"
 	echo "-t FILE1[,FILE2, ...]	- plot totals for FILEs"
 	echo "-l FILE1[,FILE2, ...]	- plot slabs stats for FILEs"
 	echo "-p FILE1[,FILE2, ...]	- pre-process RECORD file(-s)"
@@ -128,10 +128,8 @@ function do_preprocess
 while getopts "p::r::s::t::l::" opt; do
 	case $opt in
 		p)
-			data_files=(${OPTARG//,/ })
-			for i in ${data_files[@]}; do
-				do_preprocess $i
-			done
+			mode=preprocess
+			files=(${OPTARG//,/ })
 			;;
 		t)
 			mode=totals
@@ -139,10 +137,7 @@ while getopts "p::r::s::t::l::" opt; do
 			;;
 		l)
 			mode=slabs
-			data_files=(${OPTARG//,/ })
-			for i in ${data_files[@]}; do
-				do_slabs_plotting $i
-			done
+			files=(${OPTARG//,/ })
 			;;
 		s)
 			array=(${OPTARG//,/ })
@@ -167,20 +162,22 @@ done
 
 shift $(( OPTIND - 1 ))
 
-if [ "z${data_files[0]}" = "z" ]; then
-	usage
-	exit 1
-fi
-
 case $mode in
+	preprocess)
+		for i in ${files[@]}; do
+			do_preprocess $i
+		done
+		;;
 	totals)
 		do_totals_plotting
 		;;
 	slabs)
-		do_slabs_plotting
+		for i in ${files[@]}; do
+			do_slabs_plotting $i
+		done
 		;;
 	\?)
-		echo "Invalid option $mode" >&2
+		echo "Invalid or missing option $mode" >&2
 		usage
 		;;
 esac

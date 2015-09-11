@@ -1,22 +1,24 @@
-From 0cf8914a8bbe5cef8e92e10e36026df65c9a490f Mon Sep 17 00:00:00 2001
+From a0cd170e2bfe6a5dc14b80e297ed889fbe055204 Mon Sep 17 00:00:00 2001
 From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
-Date: Tue, 8 Sep 2015 00:55:15 +0900
-Subject: [PATCH 2/5] output the first K slabs with `-N|--lines=K' opt
+Subject: [PATCH 2/5] tools/vm/slabinfo: limit the number of reported slabs
 
-Signed-off-by: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
+Introduce opt "-N|--lines=K" to limit the number of slabs
+being reported in output_slabs().
+
+Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 ---
- tools/vm/slabinfo.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ tools/vm/slabinfo.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
-index 258ed01..e6f46b6 100644
+index 258ed01..2ef7f0c 100644
 --- a/tools/vm/slabinfo.c
 +++ b/tools/vm/slabinfo.c
 @@ -79,6 +79,7 @@ int sort_active = 0;
  int set_debug = 0;
  int show_ops = 0;
  int show_activity = 0;
-+int show_num_lines = -1;
++int output_lines = -1;
  
  /* Debug options */
  int sanity = 0;
@@ -34,13 +36,13 @@ index 258ed01..e6f46b6 100644
  
 -	for (slab = slabinfo; slab < slabinfo + slabs; slab++) {
 +	for (slab = slabinfo; (slab < slabinfo + slabs) &&
-+			show_num_lines != 0; slab++) {
++			output_lines != 0; slab++) {
  
  		if (slab->alias)
  			continue;
  
-+		if (show_num_lines != -1)
-+			show_num_lines--;
++		if (output_lines != -1)
++			output_lines--;
  
  		if (show_numa)
  			slab_numa(slab, 0);
@@ -61,18 +63,21 @@ index 258ed01..e6f46b6 100644
  						opts, NULL)) != -1)
  		switch (c) {
  		case '1':
-@@ -1358,7 +1364,10 @@ int main(int argc, char *argv[])
+@@ -1358,7 +1364,13 @@ int main(int argc, char *argv[])
  		case 'S':
  			sort_size = 1;
  			break;
 -
 +		case 'N':
-+			if (optarg)
-+				show_num_lines = atoi(optarg);
++			if (optarg) {
++				output_lines = atoi(optarg);
++				if (output_lines < 1)
++					output_lines = 1;
++			}
 +			break;
  		default:
  			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
  
 -- 
-2.5.1
+2.6.0.rc1
 

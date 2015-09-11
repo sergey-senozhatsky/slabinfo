@@ -38,7 +38,7 @@ mode=""
 function usage
 {
 	echo "Usage: gnuplotter.sh -t FILEs [-l FILEs] [-s W,H] [-r MIN,MAX]"
-	echo "FILEs must be captured with `slabinfo -N %d -R -X`"
+	echo "FILEs must contain 'slabinfo -X' samples"
 	echo "-t FILE1[,FILE2, ...]	- plot totals for FILEs"
 	echo "-l FILE1[,FILE2, ...]	- plot slabs stats for FILEs"
 	echo "-p FILE1[,FILE2, ...]	- pre-process RECORD file(-s)"

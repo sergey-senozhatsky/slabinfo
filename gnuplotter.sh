@@ -15,7 +15,7 @@
 
 # This program is intended to plot a `slabinfo -X' stats, collected,
 # for example, using the following command:
-#   while [ 1 ]; do slabinfo -N 1 -R -X >> stats; sleep 1; done
+#   while [ 1 ]; do slabinfo -X >> stats; sleep 1; done
 #
 # Use `gnuplotter.sh -p stats' to pre-process collected records
 # and generate graphs (for totals, slabs sorted by size, slabs
@@ -118,7 +118,7 @@ function do_preprocess
 	if=$1
 
 	# use only 'TOP' slab (biggest memory usage or loss)
-	let lines=2
+	let lines=3
 	of="$if-slabs-by-loss"
 	`cat $if | grep -A $lines 'Slabs sorted by loss' |\
 		egrep -iv '\-\-|Name|Slabs'\

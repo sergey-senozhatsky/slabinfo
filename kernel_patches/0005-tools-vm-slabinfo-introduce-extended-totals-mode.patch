@@ -1,4 +1,4 @@
-From c92f0e5d120c448428269f911f6895c787527f48 Mon Sep 17 00:00:00 2001
+From 9deb433a83db4474704e5dec4b311bcfa77798b7 Mon Sep 17 00:00:00 2001
 From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
 Date: Fri, 11 Sep 2015 14:01:37 +0900
 Subject: [PATCH 5/6] tools/vm/slabinfo: introduce extended totals mode
@@ -49,11 +49,11 @@ slabinfo --X -N 1
 
 Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 ---
- tools/vm/slabinfo.c | 52 ++++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 42 insertions(+), 10 deletions(-)
+ tools/vm/slabinfo.c | 54 +++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 44 insertions(+), 10 deletions(-)
 
 diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
-index 859c602..fd6a19e 100644
+index 859c602..290c701 100644
 --- a/tools/vm/slabinfo.c
 +++ b/tools/vm/slabinfo.c
 @@ -81,6 +81,7 @@ int show_ops = 0;
@@ -158,17 +158,19 @@ index 859c602..fd6a19e 100644
  						opts, NULL)) != -1)
  		switch (c) {
  		case '1':
-@@ -1390,6 +1418,9 @@ int main(int argc, char *argv[])
+@@ -1390,6 +1418,11 @@ int main(int argc, char *argv[])
  		case 'L':
  			sort_loss = 1;
  			break;
 +		case 'X':
++			if (output_lines == -1)
++				output_lines = 1;
 +			extended_totals = 1;
 +			break;
  		default:
  			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
  
-@@ -1409,12 +1440,13 @@ int main(int argc, char *argv[])
+@@ -1409,12 +1442,13 @@ int main(int argc, char *argv[])
  		fatal("%s: Invalid pattern '%s' code %d\n",
  			argv[0], pattern_source, err);
  	read_slab_dir();
@@ -187,5 +189,5 @@ index 859c602..fd6a19e 100644
  		rename_slabs();
  		sort_slabs();
 -- 
-2.6.0.rc1
+2.6.0.rc1.16.g1962994
 

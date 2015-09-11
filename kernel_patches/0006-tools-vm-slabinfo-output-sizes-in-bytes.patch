@@ -1,6 +1,6 @@
-From 63b32ea8b51da5e36ef0aec08d13fbdcef8783c0 Mon Sep 17 00:00:00 2001
+From cc8e1570ecfaf5c54580d14a8565ab229897f13a Mon Sep 17 00:00:00 2001
 From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
-Date: Fri, 11 Sep 2015 18:44:44 +0900
+Date: Fri, 11 Sep 2015 19:19:37 +0900
 Subject: [PATCH 6/6] tools/vm/slabinfo: output sizes in bytes
 
 Introduce "-B|--Bytes" opt to disable store_size() dynamic
@@ -67,7 +67,7 @@ Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
  1 file changed, 51 insertions(+), 37 deletions(-)
 
 diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
-index fd6a19e..155f9fe 100644
+index 290c701..cd016aa 100644
 --- a/tools/vm/slabinfo.c
 +++ b/tools/vm/slabinfo.c
 @@ -82,6 +82,7 @@ int show_activity = 0;
@@ -298,9 +298,9 @@ index fd6a19e..155f9fe 100644
  						opts, NULL)) != -1)
  		switch (c) {
  		case '1':
-@@ -1420,6 +1430,10 @@ int main(int argc, char *argv[])
- 			break;
- 		case 'X':
+@@ -1422,6 +1432,10 @@ int main(int argc, char *argv[])
+ 			if (output_lines == -1)
+ 				output_lines = 1;
  			extended_totals = 1;
 +			show_bytes = 1;
 +			break;
@@ -310,5 +310,5 @@ index fd6a19e..155f9fe 100644
  		default:
  			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
 -- 
-2.6.0.rc1
+2.6.0.rc1.16.g1962994
 

@@ -80,5 +80,5 @@ index 258ed01..2ef7f0c 100644
  			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
  
 -- 
-2.6.0.rc1
+2.6.0.rc1.16.g1962994
 

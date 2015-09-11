@@ -1,6 +1,7 @@
-From 40336d2ead0e9aa682bc33e1ba67f9cb7e15c5d1 Mon Sep 17 00:00:00 2001
+From c92f0e5d120c448428269f911f6895c787527f48 Mon Sep 17 00:00:00 2001
 From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
-Subject: [PATCH 5/5] tools/vm/slabinfo: introduce extended totals mode
+Date: Fri, 11 Sep 2015 14:01:37 +0900
+Subject: [PATCH 5/6] tools/vm/slabinfo: introduce extended totals mode
 
 Add "-X|--Xtotals" opt to output extened totals summary,
 which includes:

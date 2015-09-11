@@ -1,6 +1,7 @@
-From a0cd170e2bfe6a5dc14b80e297ed889fbe055204 Mon Sep 17 00:00:00 2001
+From a33649f32d287b8a82fd02b15c8a7c1571b046ab Mon Sep 17 00:00:00 2001
 From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
-Subject: [PATCH 2/5] tools/vm/slabinfo: limit the number of reported slabs
+Date: Mon, 7 Sep 2015 09:31:32 +0900
+Subject: [PATCH 2/6] tools/vm/slabinfo: limit the number of reported slabs
 
 Introduce opt "-N|--lines=K" to limit the number of slabs
 being reported in output_slabs().

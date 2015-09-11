@@ -1,6 +1,7 @@
-From 4e1ac6dfa552f51e41cd02ab5b94d5c1d08a7a76 Mon Sep 17 00:00:00 2001
+From a5115bf4727a8b2ecfa4d7aba252c5656c84055a Mon Sep 17 00:00:00 2001
 From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
-Subject: [PATCH 4/5] tools/vm/slabinfo: fix alternate opts names
+Date: Fri, 11 Sep 2015 13:39:00 +0900
+Subject: [PATCH 4/6] tools/vm/slabinfo: fix alternate opts names
 
 Fix mismatches between usage() output and real opts[] options.
 Add missing alternative opt names, e.g., '-S' had no '--Size'

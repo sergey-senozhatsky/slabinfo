@@ -10,7 +10,7 @@
 sleepts=1s
 slabinfo=slabinfo
 record_file=""
-lines=5
+lines=1
 mode=""
 
 function usage
@@ -33,7 +33,7 @@ function do_record
 
 	while [ 1 ]; do
 		echo "Sample #$i" >> $record_file;
-		$slabinfo -N $lines -R -X >> $record_file;
+		$slabinfo -N $lines -X >> $record_file;
 		sleep $sleepts;
 		let i=$i+1;
 	done

@@ -25,7 +25,7 @@
 # size (-r %d,%d and -s %d,%d options).
 #
 # To visually compare N `totals' graphs, do
-# gnuplotter.sh -t FILE1, FILE2,...,FILEN
+# gnuplotter.sh -t FILE1 FILE2 ... FILEN
 
 xmin=0
 xmax=0
@@ -37,13 +37,13 @@ mode=""
 
 function usage
 {
-	echo "Usage: gnuplotter.sh -t FILEs [-l FILEs] [-s W,H] [-r MIN,MAX]"
+	echo "Usage: gnuplotter.sh [-s W,H] [-r MIN,MAX] -p|-t|-l FILE1 [FILE2 ..]"
 	echo "FILEs must contain 'slabinfo -X' samples"
-	echo "-t FILE1[,FILE2, ...]	- plot totals for FILEs"
-	echo "-l FILE1[,FILE2, ...]	- plot slabs stats for FILEs"
-	echo "-p FILE1[,FILE2, ...]	- pre-process RECORD file(-s)"
-	echo "-s %d,%d			- set image width and height"
-	echo "-r %d,%d			- use data samples from a given range"
+	echo "-p 			- pre-process RECORD FILE(s)"
+	echo "-t 			- plot totals for FILE(s)"
+	echo "-l 			- plot slabs stats for FILE(s)"
+	echo "-s %d,%d		- set image width and height"
+	echo "-r %d,%d		- use data samples from a given range"
 }
 
 function do_slabs_plotting
@@ -145,42 +145,72 @@ function do_preprocess
 	fi
 }
 
-while getopts "p::r::s::t::l::" opt; do
-	case $opt in
-		p)
-			mode=preprocess
-			files=(${OPTARG//,/ })
-			;;
-		t)
-			mode=totals
-			t_files=(${OPTARG//,/ })
-			;;
-		l)
-			mode=slabs
-			files=(${OPTARG//,/ })
-			;;
-		s)
-			array=(${OPTARG//,/ })
-			width=${array[0]}
-			height=${array[1]}
-			;;
-		r)
-			array=(${OPTARG//,/ })
-			xmin=${array[0]}
-			xmax=${array[1]}
-			;;
-		\?)
-			echo "Invalid option: -$OPTARG" >&2
-			exit 1
-			;;
-		:)
-			echo "Option -$OPTARG requires an argument." >&2
-			exit 1
-			;;
-	esac
-done
+function parse_opts
+{
+	while getopts "ptlr::s::" opt; do
+		case $opt in
+			p)
+				mode=preprocess
+				;;
+			t)
+				mode=totals
+				;;
+			l)
+				mode=slabs
+				;;
+			s)
+				array=(${OPTARG//,/ })
+				width=${array[0]}
+				height=${array[1]}
+				;;
+			r)
+				array=(${OPTARG//,/ })
+				xmin=${array[0]}
+				xmax=${array[1]}
+				;;
+			\?)
+				echo "Invalid option: -$OPTARG" >&2
+				exit 1
+				;;
+			:)
+				echo "Option -$OPTARG requires an argument." >&2
+				exit 1
+				;;
+		esac
+	done
 
-shift $(( OPTIND - 1 ))
+	return $OPTIND
+}
+
+function parse_args
+{
+	idx=0
+
+	for p in "$@"; do
+		case $mode in
+			preprocess)
+				files[$idx]=$p
+				idx=$idx+1
+				;;
+			totals)
+				t_files[$idx]=$p
+				idx=$idx+1
+				;;
+			slabs)
+				files[$idx]=$p
+				idx=$idx+1
+				;;
+			*)
+				echo "Unknown mode $mode" >&2
+				exit 1
+				;;
+		esac
+	done
+}
+
+parse_opts "$@"
+argstart=$?
+parse_args "${@:$argstart}"
 
 case $mode in
 	preprocess)
@@ -196,7 +226,7 @@ case $mode in
 			do_slabs_plotting $i
 		done
 		;;
-	\?)
+	*)
 		echo "Invalid or missing option $mode" >&2
 		usage
 		;;

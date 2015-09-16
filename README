@@ -22,7 +22,7 @@ two record files (e.g. FILE1 and FILE2), do
 sudo ./slabinfo-stats.sh -r FILE2
  gnuplotter.sh -p FILE2
 ^C
- gnuplotter.sh -t FILE1 FILE2
+ gnuplotter.sh -t FILE1-totals FILE2-totals
 
 etc.
 
@@ -72,13 +72,12 @@ As of now, only gnuplot supported by gnuplotter.sh script:
    Generate plot based on "Slabs sorted by FOO" slabinfo output (both 'sort by
    loss' and 'sort by size' files)
 
-   This script handles files with *-slabs-by-loss or
-   *-slabs-by-size in their names.
+   Handles files with *-slabs-by-loss or *-slabs-by-size in their names.
 
  -t
    Generate plot based on Total "Memory usage and Loss" slabinfo output
 
-   This script handles files with *-totals in their names.
+   Handles files with *-totals in their names.
 
 NOTE:
  -p -t -l   Accepts files as agruments, not as options.

@@ -4,29 +4,29 @@ TL;DL
 A quick tutorial
 
 To start collecting samples (note sudo)
- sudo slabinfo-stats.sh -r NOMERGE
+ sudo slabinfo-stats.sh -r FILE1
 
 ^C or reboot
 
 Pre-process records file(s) (this will also generate graphs)
- gnuplotter.sh -p NOMERGE[,FILE2,...]
+ gnuplotter.sh -p FILE1 [FILE2 ... FILEN]
 
 
 If you want to regenerate graph individually (e.g. with -r 100,200) then
 do (for example):
- gnuplotter.sh -r 100,200 -l NOMERGE-slabs-by-loss
+ gnuplotter.sh -r 100,200 -l FILE1-slabs-by-loss
 
-To collect another samples (e.g. record file MERGE) and to visually compare
-two record files (e.g. MERGE and NOMERGE), do
+To collect another samples (e.g. record file FILE2) and to visually compare
+two record files (e.g. FILE1 and FILE2), do
 
-sudo ./slabinfo-stats.sh -r MERGE
- gnuplotter.sh -p MERGE
+sudo ./slabinfo-stats.sh -r FILE2
+ gnuplotter.sh -p FILE2
 ^C
- gnuplotter.sh -t MERGE-totals,NOMERGE-totals
+ gnuplotter.sh -t FILE1 FILE2
 
 etc.
 
-gnuplotter.sh -p and -t    accept any number of RECORD files.
+gnuplotter.sh -p | -l | -t    accept any number of RECORD files.
 
 
 USAGE
@@ -65,18 +65,24 @@ GENERATING A PLOT
 
 As of now, only gnuplot supported by gnuplotter.sh script:
 
- -l FILE1[, FILE2, ...]
+ -p
+   Pre-process files
+
+ -l
    Generate plot based on "Slabs sorted by FOO" slabinfo output (both 'sort by
    loss' and 'sort by size' files)
 
    This script handles files with *-slabs-by-loss or
    *-slabs-by-size in their names.
 
-
- -t FILE1[, FILE2, ...]
+ -t
    Generate plot based on Total "Memory usage and Loss" slabinfo output
 
    This script handles files with *-totals in their names.
+
+NOTE:
+ -p -t -l   Accepts files as agruments, not as options.
+
 
  -r %d,%d
  This option specifies a range of samples to be plotted. It basically scales
@@ -90,70 +96,50 @@ As of now, only gnuplot supported by gnuplotter.sh script:
  -s %d,%d
  This option lets to redefine generated image width and heigh (pixels)
 
- -p FILE1,[,FILE2,...]
- Pre-process files
-
 
 SAMPLES
 ===============================================================================
 
-Samples are just a set of numbers and names, one can grep|awk|etc.
-and pickup up any of them depending on the needs.
-
-Samples have:
--- a seq number "Sample #X" so it's easier to grep the samples file
+Samples contain:
 -- slabinto -T reporting part
 -- slabinfo `Slabs sorted by size' and `Slabs sorted by loss' tables
-
-Each record file starts with the following lines:
- uname -r
- cat /proc/cmdline
- slabs_pertable:$lines
 
 
 EXAMPLE:
 
-Sample #1
 Slabcache Totals
 ----------------
-Slabcaches : 140      Aliases  :   0->0   Active: 109
-Memory used: 244441088   # Loss   : 11651888   MRatio:     5%
-# Objects  : 408174   # PartObj:  11658   ORatio:     2%
+Slabcaches :              91   Aliases  :         119->69   Active:     68
+Memory used:       215023616   # Loss   :         9009360   MRatio:     4%
+# Objects  :          373710   # PartObj:            4531   ORatio:     1%
 
-Per Cache    Average         Min         Max       Total
----------------------------------------------------------
-#Objects        3744          11      109154      408174
-#Slabs           140           1        4854       15267
-#PartSlab          4           0         148         528
-%PartSlab         3%          0%         57%          3%
-PartObjs           2           0        6137       11658
-% PartObj         1%          0%         41%          2%
-Memory       2242578        4096   159055872   244441088
-Used         2135680        3360   151677792   232789200
-Loss          106898           0     7378080    11651888
+Per Cache         Average              Min              Max            Total
+----------------------------------------------------------------------------
+#Objects             5495               11            94472           373710
+#Slabs                201                1             4188            13708
+#PartSlab               3                0              103              212
+%PartSlab              2%               0%              51%               1%
+PartObjs                1                0             2246             4531
+% PartObj              1%               0%              41%               1%
+Memory            3162112             8192        137232384        215023616
+Used              3029621             7920        130866624        206014256
+Loss               132490                0          6365760          9009360
 
-Per Object   Average         Min         Max
----------------------------------------------
-Memory           573           8        8192
-User             570           8        8192
-Loss               2           0          64
+Per Object        Average              Min              Max
+-----------------------------------------------------------
+Memory                553                8             8192
+User                  551                8             8192
+Loss                    2                0               64
 
 Slabs sorted by size
-----------------------
-Name                   Objects Objsize                Space Slabs/Part/Cpu  O/S O %Fr %Ef Flg
-ext4_inode_cache         87372    1736            159055872      4833/0/21   18 3   0  95 a
-dentry                  109154     288             31997952     3880/36/26   28 1   0  98 a
-inode_cache              12366     864             11255808        680/0/7   18 2   0  94 a
-buffer_head              56628     104              5947392      1438/0/14   39 0   0  99 a
-radix_tree_node           7056     576              4128768        245/0/7   28 2   0  98 a
+--------------------
+Name                   Objects Objsize           Space Slabs/Part/Cpu  O/S O %Fr %Ef Flg
+ext4_inode_cache         75384    1736       137232384      4178/0/10   18 3   0  95 a
 
 Slabs sorted by loss
-----------------------
-ext4_inode_cache         87372    1736              7378080      4833/0/21   18 3   0  95 a
-kmalloc-2048              1591    2048               575488      102/37/15   16 3  31  84 
-inode_cache              12366     864               571584        680/0/7   18 2   0  94 a
-dentry                  109154     288               561600     3880/36/26   28 1   0  98 a
-shmem_inode_cache         2055    1040               320400       47/16/28   31 3  21  86 
+--------------------
+Name                   Objects Objsize            Loss Slabs/Part/Cpu  O/S O %Fr %Ef Flg
+ext4_inode_cache         75384    1736         6365760      4178/0/10   18 3   0  95 a
 
 
 

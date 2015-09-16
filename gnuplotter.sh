@@ -18,26 +18,23 @@
 #   while [ 1 ]; do slabinfo -X >> stats; sleep 1; done
 #
 # Use `gnuplotter.sh -p stats' to pre-process collected records
-# and generate graphs (for totals, slabs sorted by size, slabs
+# and generate graphs (totals, slabs sorted by size, slabs
 # sorted by size).
 #
 # Graphs can be [individually] regenerate with different ranges and
 # size (-r %d,%d and -s %d,%d options).
 #
 # To visually compare N `totals' graphs, do
-# gnuplotter.sh -t FILE1 FILE2 ... FILEN
+# gnuplotter.sh -t FILE1-totals FILE2-totals ... FILEN-totals
 
 xmin=0
 xmax=0
 width=1500
 height=700
-data_file=""
-t_files=""
-mode=""
 
 function usage
 {
-	echo "Usage: gnuplotter.sh [-s W,H] [-r MIN,MAX] -p|-t|-l FILE1 [FILE2 ..]"
+	echo "gnuplotter.sh [-s W,H] [-r MIN,MAX] -p|-t|-l FILE1 [FILE2 ..]"
 	echo "FILEs must contain 'slabinfo -X' samples"
 	echo "-p 			- pre-process RECORD FILE(s)"
 	echo "-t 			- plot totals for FILE(s)"
@@ -147,7 +144,7 @@ function do_preprocess
 
 function parse_opts
 {
-	while getopts "ptlr::s::" opt; do
+	while getopts "ptlr::s::h" opt; do
 		case $opt in
 			p)
 				mode=preprocess
@@ -168,12 +165,16 @@ function parse_opts
 				xmin=${array[0]}
 				xmax=${array[1]}
 				;;
+			h)
+				usage
+				exit 0
+				;;
 			\?)
 				echo "Invalid option: -$OPTARG" >&2
 				exit 1
 				;;
 			:)
-				echo "Option -$OPTARG requires an argument." >&2
+				echo "-$OPTARG requires an argument." >&2
 				exit 1
 				;;
 		esac
@@ -200,10 +201,6 @@ function parse_args
 				files[$idx]=$p
 				idx=$idx+1
 				;;
-			*)
-				echo "Unknown mode $mode" >&2
-				exit 1
-				;;
 		esac
 	done
 }
@@ -211,6 +208,11 @@ function parse_args
 parse_opts "$@"
 argstart=$?
 parse_args "${@:$argstart}"
+
+if [ ${#files[@]} = 0 ] && [ ${#t_files[@]} = 0 ]; then
+	usage
+	exit 1
+fi
 
 case $mode in
 	preprocess)
@@ -227,7 +229,8 @@ case $mode in
 		done
 		;;
 	*)
-		echo "Invalid or missing option $mode" >&2
+		echo "Unknown mode $mode" >&2
 		usage
-		;;
+		exit 1
+	;;
 esac

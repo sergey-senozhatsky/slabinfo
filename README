@@ -9,24 +9,24 @@ To start collecting samples (note sudo)
 ^C or reboot
 
 Pre-process records file(s) (this will also generate graphs)
- gnuplotter.sh -p FILE1 [FILE2 ... FILEN]
+ slabinfo-gnuplot.sh -p FILE1 [FILE2 ... FILEN]
 
 
 If you want to regenerate graph individually (e.g. with -r 100,200) then
 do (for example):
- gnuplotter.sh -r 100,200 -l FILE1-slabs-by-loss
+ slabinfo-gnuplot.sh -r 100,200 -l FILE1-slabs-by-loss
 
 To collect another samples (e.g. record file FILE2) and to visually compare
 two record files (e.g. FILE1 and FILE2), do
 
 sudo ./slabinfo-stats.sh -r FILE2
- gnuplotter.sh -p FILE2
+ slabinfo-gnuplot.sh -p FILE2
 ^C
- gnuplotter.sh -t FILE1-totals FILE2-totals
+ slabinfo-gnuplot.sh -t FILE1-totals FILE2-totals
 
 etc.
 
-gnuplotter.sh -p | -l | -t    accept any number of RECORD files.
+slabinfo-gnuplot.sh -p | -l | -t    accept any number of RECORD files.
 
 
 USAGE
@@ -63,7 +63,7 @@ The rest is handled by plotting scripts.
 GENERATING A PLOT
 ===============================================================================
 
-As of now, only gnuplot supported by gnuplotter.sh script:
+As of now, only gnuplot supported by slabinfo-gnuplot.sh script:
 
  -p
    Pre-process files

@@ -44,20 +44,41 @@ usage()
 	echo "-r %d,%d		- use data samples from a given range"
 }
 
+check_file_exist()
+{
+	if [ ! -f $1 ]; then
+		echo "File '$1' does not exist"
+		exit 1
+	fi
+}
+
 do_slabs_plotting()
 {
 	local file=$1
 	local range="every ::$xmin"
 	local xtic=""
 	local xtic_rotate="norotate"
+	local lines=2000000
+
+	check_file_exist $file
 
 	if [ $xmax -ne 0 ]; then
 		range="$range::$xmax"
+		lines=$(($xmax-$xmin))
+	fi
 
-		if [ $(($width / $(($xmax-$xmin)))) -gt 5 ]; then
-			xtic=":xtic(1)"
-			xtic_rotate=90
-		fi
+	local wc_lines=`cat $file | wc -l`
+	if [ $? -ne 0 ] || [ $wc_lines -eq 0 ] ; then
+		wc_lines=$lines
+	fi
+
+	if [ $wc_lines -lt $lines ]; then
+		lines=$wc_lines
+	fi
+
+	if [ $(($width / $lines)) -gt 15 ]; then
+		xtic=":xtic(1)"
+		xtic_rotate=90
 	fi
 
 gnuplot -p << EOF
@@ -92,8 +113,9 @@ do_totals_plotting()
 		range="$range::$xmax"
 	fi
 
-	# have no idea how to force `plot for loop' to do the same
 	for i in ${t_files[@]}; do
+		check_file_exist $i
+
 		file="$file$i"
 		gnuplot_cmd="$gnuplot_cmd '$i' $range using 1 title\
 			'$i Memory usage' with lines,"
@@ -123,6 +145,8 @@ do_preprocess()
 {
 	local out
 	local in=$1
+
+	check_file_exist $in
 
 	# use only 'TOP' slab (biggest memory usage or loss)
 	let lines=3

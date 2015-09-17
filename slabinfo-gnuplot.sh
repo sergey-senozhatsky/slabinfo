@@ -68,7 +68,7 @@ set autoscale xy
 set xlabel 'samples'
 set ylabel 'bytes'
 set style histogram columnstacked title textcolor lt -1
-set style fill solid 0.30
+set style fill solid 0.15
 set xtic rotate 90
 set key left above Left title reverse
 

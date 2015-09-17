@@ -17,7 +17,7 @@
 # for example, using the following command:
 #   while [ 1 ]; do slabinfo -X >> stats; sleep 1; done
 #
-# Use `gnuplotter.sh -p stats' to pre-process collected records
+# Use `slabinfo-gnuplot.sh -p stats' to pre-process collected records
 # and generate graphs (totals, slabs sorted by size, slabs
 # sorted by size).
 #
@@ -25,7 +25,7 @@
 # size (-r %d,%d and -s %d,%d options).
 #
 # To visually compare N `totals' graphs, do
-# gnuplotter.sh -t FILE1-totals FILE2-totals ... FILEN-totals
+# slabinfo-gnuplot.sh -t FILE1-totals FILE2-totals ... FILEN-totals
 
 xmin=0
 xmax=0
@@ -34,7 +34,7 @@ height=700
 
 usage()
 {
-	echo "gnuplotter.sh [-s W,H] [-r MIN,MAX] -p|-t|-l FILE1 [FILE2 ..]"
+	echo "Usage: [-s W,H] [-r MIN,MAX] -p|-t|-l FILE1 [FILE2 ..]"
 	echo "FILEs must contain 'slabinfo -X' samples"
 	echo "-p 			- pre-process RECORD FILE(s)"
 	echo "-t 			- plot totals for FILE(s)"

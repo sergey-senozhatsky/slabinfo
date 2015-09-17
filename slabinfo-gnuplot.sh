@@ -26,6 +26,7 @@
 #
 # To visually compare N `totals' graphs, do
 # slabinfo-gnuplot.sh -t FILE1-totals FILE2-totals ... FILEN-totals
+#
 
 xmin=0
 xmax=0
@@ -48,14 +49,14 @@ do_slabs_plotting()
 	local file=$1
 	local range="every ::$xmin"
 	local xtic=""
+	local xtic_rotate="norotate"
 
 	if [ $xmax -ne 0 ]; then
 		range="$range::$xmax"
 
 		if [ $(($width / $(($xmax-$xmin)))) -gt 5 ]; then
 			xtic=":xtic(1)"
-		else
-			echo "Output is too small, avoid printing slab names"
+			xtic_rotate=90
 		fi
 	fi
 
@@ -69,7 +70,7 @@ set xlabel 'samples'
 set ylabel 'bytes'
 set style histogram columnstacked title textcolor lt -1
 set style fill solid 0.15
-set xtic rotate 90
+set xtics rotate $xtic_rotate
 set key left above Left title reverse
 
 plot "$file" $range u 2$xtic title 'SIZE' with boxes,\

@@ -120,33 +120,33 @@ EOF
 
 do_preprocess()
 {
-	local of
-	local if=$1
+	local out
+	local in=$1
 
 	# use only 'TOP' slab (biggest memory usage or loss)
 	let lines=3
-	of="$if-slabs-by-loss"
-	`cat $if | grep -A $lines 'Slabs sorted by loss' |\
+	out="$in-slabs-by-loss"
+	`cat $in | grep -A $lines 'Slabs sorted by loss' |\
 		egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4+$2*$3" "$4}' > $of`
+		| awk '{print $1" "$4+$2*$3" "$4}' > $out`
 	if [ $? -eq 0 ]; then
-		do_slabs_plotting $of
+		do_slabs_plotting $out
 	fi
 
 	let lines=3
-	of="$if-slabs-by-size"
-	`cat $if | grep -A $lines 'Slabs sorted by size' |\
+	out="$in-slabs-by-size"
+	`cat $in | grep -A $lines 'Slabs sorted by size' |\
 		egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4" "$4-$2*$3}' > $of`
+		| awk '{print $1" "$4" "$4-$2*$3}' > $out`
 	if [ $? -eq 0 ]; then
-		do_slabs_plotting $of
+		do_slabs_plotting $out
 	fi
 
-	of="$if-totals"
-	`cat $if | grep "Memory used" |\
-		awk '{print $3" "$7}' > $of`
+	out="$in-totals"
+	`cat $in | grep "Memory used" |\
+		awk '{print $3" "$7}' > $out`
 	if [ $? -eq 0 ]; then
-		t_files[0]=$of
+		t_files[0]=$out
 		do_totals_plotting
 	fi
 }

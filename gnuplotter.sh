@@ -62,7 +62,7 @@ function do_slabs_plotting
 gnuplot -p << EOF
 #!/usr/bin/env gnuplot
 
-set terminal png enhanced size $width,$height tiny
+set terminal png enhanced size $width,$height large
 set output '$inf.png'
 set autoscale xy
 set xlabel 'samples'
@@ -99,7 +99,7 @@ function do_totals_plotting
 gnuplot -p << EOF
 #!/usr/bin/env gnuplot
 
-set terminal png enhanced size $width,$height tiny
+set terminal png enhanced size $width,$height large
 set autoscale xy
 set output '$output.png'
 set xlabel 'samples'

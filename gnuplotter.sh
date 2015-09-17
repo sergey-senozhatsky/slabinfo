@@ -75,6 +75,10 @@ set key left above Left title reverse
 plot "$inf" $range u 2$xtic title 'SIZE' with boxes,\
 	'' $range u 3 title 'LOSS' with boxes
 EOF
+
+	if [ $? = 0 ]; then
+		echo "$inf.png"
+	fi
 }
 
 function do_totals_plotting
@@ -108,6 +112,10 @@ set key left above Left title reverse
 
 plot $gnuplot_cmd
 EOF
+
+	if [ $? = 0 ]; then
+		echo "$output.png"
+	fi
 }
 
 function do_preprocess

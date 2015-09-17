@@ -32,7 +32,7 @@ xmax=0
 width=1500
 height=700
 
-function usage
+usage()
 {
 	echo "gnuplotter.sh [-s W,H] [-r MIN,MAX] -p|-t|-l FILE1 [FILE2 ..]"
 	echo "FILEs must contain 'slabinfo -X' samples"
@@ -43,13 +43,13 @@ function usage
 	echo "-r %d,%d		- use data samples from a given range"
 }
 
-function do_slabs_plotting
+do_slabs_plotting()
 {
-	inf=$1
-	range="every ::$xmin"
-	xtic=""
+	local file=$1
+	local range="every ::$xmin"
+	local xtic=""
 
-	if [ $xmax != 0 ]; then
+	if [ $xmax -ne 0 ]; then
 		range="$range::$xmax"
 
 		if [ $(($width / $(($xmax-$xmin)))) -gt 5 ]; then
@@ -63,7 +63,7 @@ gnuplot -p << EOF
 #!/usr/bin/env gnuplot
 
 set terminal png enhanced size $width,$height large
-set output '$inf.png'
+set output '$file.png'
 set autoscale xy
 set xlabel 'samples'
 set ylabel 'bytes'
@@ -72,28 +72,28 @@ set style fill solid 0.30
 set xtic rotate 90
 set key left above Left title reverse
 
-plot "$inf" $range u 2$xtic title 'SIZE' with boxes,\
+plot "$file" $range u 2$xtic title 'SIZE' with boxes,\
 	'' $range u 3 title 'LOSS' with boxes
 EOF
 
-	if [ $? = 0 ]; then
-		echo "$inf.png"
+	if [ $? -eq 0 ]; then
+		echo "$file.png"
 	fi
 }
 
-function do_totals_plotting
+do_totals_plotting()
 {
-	gnuplot_cmd=""
-	range="every ::$xmin"
-	output=""
+	local gnuplot_cmd=""
+	local range="every ::$xmin"
+	local file=""
 
-	if [ $xmax != 0 ]; then
+	if [ $xmax -ne 0 ]; then
 		range="$range::$xmax"
 	fi
 
 	# have no idea how to force `plot for loop' to do the same
 	for i in ${t_files[@]}; do
-		output="$output$i"
+		file="$file$i"
 		gnuplot_cmd="$gnuplot_cmd '$i' $range using 1 title\
 			'$i Memory usage' with lines,"
 		gnuplot_cmd="$gnuplot_cmd '' $range using 2 title \
@@ -105,7 +105,7 @@ gnuplot -p << EOF
 
 set terminal png enhanced size $width,$height large
 set autoscale xy
-set output '$output.png'
+set output '$file.png'
 set xlabel 'samples'
 set ylabel 'bytes'
 set key left above Left title reverse
@@ -113,14 +113,15 @@ set key left above Left title reverse
 plot $gnuplot_cmd
 EOF
 
-	if [ $? = 0 ]; then
-		echo "$output.png"
+	if [ $? -eq 0 ]; then
+		echo "$file.png"
 	fi
 }
 
-function do_preprocess
+do_preprocess()
 {
-	if=$1
+	local of
+	local if=$1
 
 	# use only 'TOP' slab (biggest memory usage or loss)
 	let lines=3
@@ -128,7 +129,7 @@ function do_preprocess
 	`cat $if | grep -A $lines 'Slabs sorted by loss' |\
 		egrep -iv '\-\-|Name|Slabs'\
 		| awk '{print $1" "$4+$2*$3" "$4}' > $of`
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		do_slabs_plotting $of
 	fi
 
@@ -137,21 +138,23 @@ function do_preprocess
 	`cat $if | grep -A $lines 'Slabs sorted by size' |\
 		egrep -iv '\-\-|Name|Slabs'\
 		| awk '{print $1" "$4" "$4-$2*$3}' > $of`
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		do_slabs_plotting $of
 	fi
 
 	of="$if-totals"
 	`cat $if | grep "Memory used" |\
 		awk '{print $3" "$7}' > $of`
-	if [ $? = 0 ]; then
+	if [ $? -eq 0 ]; then
 		t_files[0]=$of
 		do_totals_plotting
 	fi
 }
 
-function parse_opts
+parse_opts()
 {
+	local opt
+
 	while getopts "ptlr::s::h" opt; do
 		case $opt in
 			p)
@@ -191,9 +194,10 @@ function parse_opts
 	return $OPTIND
 }
 
-function parse_args
+parse_args()
 {
-	idx=0
+	local idx=0
+	local p
 
 	for p in "$@"; do
 		case $mode in
@@ -217,7 +221,7 @@ parse_opts "$@"
 argstart=$?
 parse_args "${@:$argstart}"
 
-if [ ${#files[@]} = 0 ] && [ ${#t_files[@]} = 0 ]; then
+if [ ${#files[@]} -eq 0 ] && [ ${#t_files[@]} -eq 0 ]; then
 	usage
 	exit 1
 fi

@@ -28,6 +28,7 @@
 # slabinfo-gnuplot.sh -t FILE1-totals FILE2-totals ... FILEN-totals
 #
 
+min_slab_name_size=11
 xmin=0
 xmax=0
 width=1500
@@ -76,7 +77,7 @@ do_slabs_plotting()
 		lines=$wc_lines
 	fi
 
-	if [ $(($width / $lines)) -gt 15 ]; then
+	if [ $(($width / $lines)) -gt $min_slab_name_size ]; then
 		xtic=":xtic(1)"
 		xtic_rotate=90
 	fi

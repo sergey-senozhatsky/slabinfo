@@ -9,7 +9,7 @@ To start collecting samples (note sudo)
 ^C or reboot
 
 Pre-process records file(s) (this will also generate graphs)
- slabinfo-gnuplot.sh -p FILE1 [FILE2 ... FILEN]
+ slabinfo-gnuplot.sh FILE1 [FILE2 ... FILEN]
 
 
 If you want to regenerate graph individually (e.g. with -r 100,200) then
@@ -26,7 +26,7 @@ sudo ./slabinfo-stats.sh -r FILE2
 
 etc.
 
-slabinfo-gnuplot.sh -p | -l | -t    accept any number of RECORD files.
+slabinfo-gnuplot.sh -l | -t    accept any number of RECORD files.
 
 
 USAGE
@@ -63,10 +63,16 @@ The rest is handled by plotting scripts.
 GENERATING A PLOT
 ===============================================================================
 
-As of now, only gnuplot supported by slabinfo-gnuplot.sh script:
+As of now, only gnuplot supported by slabinfo-gnuplot.sh script. Recorded samples
+must be pre-processed, which is done simply by passing record files to the
+script:
 
- -p
-   Pre-process files
+   slabinfo-gnuplot.sh FILE1 [FILE2 .. FILEN]
+
+This action will pre-process record files, generate graph for totals,
+slabs sorted by size and slabs sorted by loss.
+
+If you want to regenerate any of those individually, use the following options:
 
  -l
    Generate plot based on "Slabs sorted by FOO" slabinfo output (both 'sort by
@@ -80,8 +86,7 @@ As of now, only gnuplot supported by slabinfo-gnuplot.sh script:
    Handles files with *-totals in their names.
 
 NOTE:
- -p -t -l   Accepts files as agruments, not as options.
-
+ -t -l   Accept files as agruments, not as options.
 
  -r %d,%d
  This option specifies a range of samples to be plotted. It basically scales

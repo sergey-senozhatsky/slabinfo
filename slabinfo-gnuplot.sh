@@ -17,9 +17,9 @@
 # for example, using the following command:
 #   while [ 1 ]; do slabinfo -X >> stats; sleep 1; done
 #
-# Use `slabinfo-gnuplot.sh -p stats' to pre-process collected records
-# and generate graphs (totals, slabs sorted by size, slabs
-# sorted by size).
+# Use `slabinfo-gnuplot.sh stats' to pre-process collected records
+# and generate graphs (totals, slabs sorted by size, slabs sorted
+# by size).
 #
 # Graphs can be [individually] regenerate with different ranges and
 # size (-r %d,%d and -s %d,%d options).
@@ -32,12 +32,12 @@ xmin=0
 xmax=0
 width=1500
 height=700
+mode=preprocess
 
 usage()
 {
-	echo "Usage: [-s W,H] [-r MIN,MAX] -p|-t|-l FILE1 [FILE2 ..]"
+	echo "Usage: [-s W,H] [-r MIN,MAX] [-t|-l] FILE1 [FILE2 ..]"
 	echo "FILEs must contain 'slabinfo -X' samples"
-	echo "-p 			- pre-process RECORD FILE(s)"
 	echo "-t 			- plot totals for FILE(s)"
 	echo "-l 			- plot slabs stats for FILE(s)"
 	echo "-s %d,%d		- set image width and height"
@@ -180,11 +180,8 @@ parse_opts()
 {
 	local opt
 
-	while getopts "ptlr::s::h" opt; do
+	while getopts "tlr::s::h" opt; do
 		case $opt in
-			p)
-				mode=preprocess
-				;;
 			t)
 				mode=totals
 				;;

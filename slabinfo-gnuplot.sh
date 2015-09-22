@@ -47,7 +47,7 @@ usage()
 
 check_file_exist()
 {
-	if [ ! -f $1 ]; then
+	if [ ! -f "$1" ]; then
 		echo "File '$1' does not exist"
 		exit 1
 	fi
@@ -60,24 +60,25 @@ do_slabs_plotting()
 	local xtic=""
 	local xtic_rotate="norotate"
 	local lines=2000000
+	local wc_lines
 
-	check_file_exist $file
+	check_file_exist "$file"
 
 	if [ $xmax -ne 0 ]; then
 		range="$range::$xmax"
-		lines=$(($xmax-$xmin))
+		lines=$((xmax-xmin))
 	fi
 
-	local wc_lines=`cat $file | wc -l`
-	if [ $? -ne 0 ] || [ $wc_lines -eq 0 ] ; then
+	wc_lines=`cat "$file" | wc -l`
+	if [ $? -ne 0 ] || [ "$wc_lines" -eq 0 ] ; then
 		wc_lines=$lines
 	fi
 
-	if [ $wc_lines -lt $lines ]; then
+	if [ "$wc_lines" -lt "$lines" ]; then
 		lines=$wc_lines
 	fi
 
-	if [ $(($width / $lines)) -gt $min_slab_name_size ]; then
+	if [ $((width / lines)) -gt $min_slab_name_size ]; then
 		xtic=":xtic(1)"
 		xtic_rotate=90
 	fi
@@ -114,8 +115,8 @@ do_totals_plotting()
 		range="$range::$xmax"
 	fi
 
-	for i in ${t_files[@]}; do
-		check_file_exist $i
+	for i in "${t_files[@]}"; do
+		check_file_exist "$i"
 
 		file="$file$i"
 		gnuplot_cmd="$gnuplot_cmd '$i' $range using 1 title\
@@ -146,31 +147,32 @@ do_preprocess()
 {
 	local out
 	local in=$1
+	local lines
 
-	check_file_exist $in
+	check_file_exist "$in"
 
 	# use only 'TOP' slab (biggest memory usage or loss)
 	let lines=3
 	out="$in-slabs-by-loss"
-	`cat $in | grep -A $lines 'Slabs sorted by loss' |\
+	`cat "$in" | grep -A "$lines" 'Slabs sorted by loss' |\
 		egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4+$2*$3" "$4}' > $out`
+		| awk '{print $1" "$4+$2*$3" "$4}' > "$out"`
 	if [ $? -eq 0 ]; then
-		do_slabs_plotting $out
+		do_slabs_plotting "$out"
 	fi
 
 	let lines=3
 	out="$in-slabs-by-size"
-	`cat $in | grep -A $lines 'Slabs sorted by size' |\
+	`cat "$in" | grep -A "$lines" 'Slabs sorted by size' |\
 		egrep -iv '\-\-|Name|Slabs'\
-		| awk '{print $1" "$4" "$4-$2*$3}' > $out`
+		| awk '{print $1" "$4" "$4-$2*$3}' > "$out"`
 	if [ $? -eq 0 ]; then
-		do_slabs_plotting $out
+		do_slabs_plotting "$out"
 	fi
 
 	out="$in-totals"
-	`cat $in | grep "Memory used" |\
-		awk '{print $3" "$7}' > $out`
+	`cat "$in" | grep "Memory used" |\
+		awk '{print $3" "$7}' > "$out"`
 	if [ $? -eq 0 ]; then
 		t_files[0]=$out
 		do_totals_plotting
@@ -251,16 +253,16 @@ fi
 
 case $mode in
 	preprocess)
-		for i in ${files[@]}; do
-			do_preprocess $i
+		for i in "${files[@]}"; do
+			do_preprocess "$i"
 		done
 		;;
 	totals)
 		do_totals_plotting
 		;;
 	slabs)
-		for i in ${files[@]}; do
-			do_slabs_plotting $i
+		for i in "${files[@]}"; do
+			do_slabs_plotting "$i"
 		done
 		;;
 	*)

@@ -1,7 +1,7 @@
-From 3653bcf1fcadf4af0c7b5d7b1916b0a33bfcb17f Mon Sep 17 00:00:00 2001
-From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
-Date: Fri, 11 Sep 2015 13:25:30 +0900
-Subject: [PATCH 3/6] tools/vm/slabinfo: sort slabs by loss
+From b1300b8fb2069174f3926abd5a71fbeb40ccf4b8 Mon Sep 17 00:00:00 2001
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Date: Tue, 13 Oct 2015 21:09:43 +0900
+Subject: [PATCH 3/7] tools/vm/slabinfo: sort slabs by loss
 
 Introduce opt "-L|--sort-loss" to sort and output slabs by
 loss (waste) in slabcache().
@@ -104,5 +104,5 @@ index 2ef7f0c..71be1f9 100644
  			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
  
 -- 
-2.6.0.rc1.16.g1962994
+2.6.1.133.gf5b6079
 

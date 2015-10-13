@@ -1,7 +1,7 @@
-From cc8e1570ecfaf5c54580d14a8565ab229897f13a Mon Sep 17 00:00:00 2001
-From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
-Date: Fri, 11 Sep 2015 19:19:37 +0900
-Subject: [PATCH 6/6] tools/vm/slabinfo: output sizes in bytes
+From 5e5235dbdf970c13b8a2a485537dcdb4f34b96c6 Mon Sep 17 00:00:00 2001
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Date: Tue, 13 Oct 2015 21:09:43 +0900
+Subject: [PATCH 6/7] tools/vm/slabinfo: output sizes in bytes
 
 Introduce "-B|--Bytes" opt to disable store_size() dynamic
 size scaling and report size in bytes instead.
@@ -310,5 +310,5 @@ index 290c701..cd016aa 100644
  		default:
  			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
 -- 
-2.6.0.rc1.16.g1962994
+2.6.1.133.gf5b6079
 

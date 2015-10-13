@@ -1,7 +1,7 @@
-From f3ccd4f2b5240139430bd8b807ab42cebcd1113b Mon Sep 17 00:00:00 2001
-From: Sergey SENOZHATSKY <sergey.senozhatsky@gmail.com>
-Date: Mon, 7 Sep 2015 08:58:39 +0900
-Subject: [PATCH 1/6] tools/vm/slabinfo: use getopt
+From b7ac4bbea8a6102f618b1dd1d053bbb9e4f3c637 Mon Sep 17 00:00:00 2001
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Date: Tue, 13 Oct 2015 21:09:43 +0900
+Subject: [PATCH 1/7] tools/vm/slabinfo: use getopt
  no_argument/optional_argument
 
 Use getopt constants in `struct option' ->has_arg instead
@@ -58,5 +58,5 @@ index 808d5a9..258ed01 100644
  };
  
 -- 
-2.6.0.rc1.16.g1962994
+2.6.1.133.gf5b6079
 

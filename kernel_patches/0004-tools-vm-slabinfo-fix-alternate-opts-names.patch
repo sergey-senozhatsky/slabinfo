@@ -1,7 +1,7 @@
-From 9bd9549d11072e12349a774d3990b58d488c8455 Mon Sep 17 00:00:00 2001
+From 69183f4fc42b3b47bff46fa14e3dd9724aa85eb1 Mon Sep 17 00:00:00 2001
 From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Date: Tue, 13 Oct 2015 21:09:43 +0900
-Subject: [PATCH 4/7] tools/vm/slabinfo: fix alternate opts names
+Subject: [PATCH 4/8] tools/vm/slabinfo: fix alternate opts names
 
 Fix mismatches between usage() output and real opts[] options.
 Add missing alternative opt names, e.g., '-S' had no '--Size'
@@ -13,7 +13,7 @@ Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
-index 71be1f9..859c602 100644
+index 2e154f1..de4974d 100644
 --- a/tools/vm/slabinfo.c
 +++ b/tools/vm/slabinfo.c
 @@ -1294,12 +1294,14 @@ struct option opts[] = {
@@ -35,5 +35,5 @@ index 71be1f9..859c602 100644
  	{ "zero", no_argument, NULL, 'z' },
  	{ "1ref", no_argument, NULL, '1'},
 -- 
-2.6.1.133.gf5b6079
+2.6.1.134.g4b1fd35
 

@@ -1,7 +1,7 @@
-From 5e5235dbdf970c13b8a2a485537dcdb4f34b96c6 Mon Sep 17 00:00:00 2001
+From f465d81ad98c8f0c0a9265bc49cd75f566378c44 Mon Sep 17 00:00:00 2001
 From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Date: Tue, 13 Oct 2015 21:09:43 +0900
-Subject: [PATCH 6/7] tools/vm/slabinfo: output sizes in bytes
+Subject: [PATCH 6/8] tools/vm/slabinfo: output sizes in bytes
 
 Introduce "-B|--Bytes" opt to disable store_size() dynamic
 size scaling and report size in bytes instead.
@@ -67,14 +67,14 @@ Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
  1 file changed, 51 insertions(+), 37 deletions(-)
 
 diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
-index 290c701..cd016aa 100644
+index 44b83ce..60beb91 100644
 --- a/tools/vm/slabinfo.c
 +++ b/tools/vm/slabinfo.c
 @@ -82,6 +82,7 @@ int show_activity = 0;
  int output_lines = -1;
- int sort_loss = 0;
- int extended_totals = 0;
-+int show_bytes = 0;
+ int sort_loss;
+ int extended_totals;
++int show_bytes;
  
  /* Debug options */
  int sanity = 0;
@@ -264,7 +264,7 @@ index 290c701..cd016aa 100644
  	}
  	if (active)
  		printf("\n");
-@@ -1296,14 +1305,14 @@ static void xtotals()
+@@ -1296,14 +1305,14 @@ static void xtotals(void)
  	rename_slabs();
  
  	printf("\nSlabs sorted by size\n");
@@ -310,5 +310,5 @@ index 290c701..cd016aa 100644
  		default:
  			fatal("%s: Invalid option '%c'\n", argv[0], optopt);
 -- 
-2.6.1.133.gf5b6079
+2.6.1.134.g4b1fd35
 

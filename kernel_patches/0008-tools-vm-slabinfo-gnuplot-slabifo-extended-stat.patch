@@ -1,7 +1,7 @@
-From 6f8b0f291ba35124871019fd9e4cb8cd371e4aa0 Mon Sep 17 00:00:00 2001
+From f0dd153c2edcad18d1a3d1bd2a103775c7a8bbb6 Mon Sep 17 00:00:00 2001
 From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Date: Tue, 13 Oct 2015 21:30:02 +0900
-Subject: [PATCH 7/7] tools/vm/slabinfo: gnuplot slabifo extended stat
+Subject: [PATCH 8/8] tools/vm/slabinfo: gnuplot slabifo extended stat
 
 GNUplot `slabinfo -X' stats, collected, for example, using the
 following command:
@@ -303,5 +303,5 @@ index 0000000..2e0f884
 +	;;
 +esac
 -- 
-2.6.1.133.gf5b6079
+2.6.1.134.g4b1fd35
 

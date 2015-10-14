@@ -1,9 +1,9 @@
-From 2bbe13627e4d29c5a5b80276cc555312192bd82d Mon Sep 17 00:00:00 2001
+From bfa3057252cc353ffbd2d4575fb0c581fb611240 Mon Sep 17 00:00:00 2001
 From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Date: Tue, 13 Oct 2015 21:09:43 +0900
-Subject: [PATCH 5/7] tools/vm/slabinfo: introduce extended totals mode
+Subject: [PATCH 5/8] tools/vm/slabinfo: introduce extended totals mode
 
-Add "-X|--Xtotals" opt to output extened totals summary,
+Add "-X|--Xtotals" opt to output extended totals summary,
 which includes:
 -- totals summary
 -- slabs sorted by size
@@ -53,14 +53,14 @@ Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
  1 file changed, 44 insertions(+), 10 deletions(-)
 
 diff --git a/tools/vm/slabinfo.c b/tools/vm/slabinfo.c
-index 859c602..290c701 100644
+index de4974d..44b83ce 100644
 --- a/tools/vm/slabinfo.c
 +++ b/tools/vm/slabinfo.c
 @@ -81,6 +81,7 @@ int show_ops = 0;
  int show_activity = 0;
  int output_lines = -1;
- int sort_loss = 0;
-+int extended_totals = 0;
+ int sort_loss;
++int extended_totals;
  
  /* Debug options */
  int sanity = 0;
@@ -114,7 +114,7 @@ index 859c602..290c701 100644
  	}
  }
  
-+static void xtotals()
++static void xtotals(void)
 +{
 +	totals();
 +
@@ -189,5 +189,5 @@ index 859c602..290c701 100644
  		rename_slabs();
  		sort_slabs();
 -- 
-2.6.1.133.gf5b6079
+2.6.1.134.g4b1fd35
 

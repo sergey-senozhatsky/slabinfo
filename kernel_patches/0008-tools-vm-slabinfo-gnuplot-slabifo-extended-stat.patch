@@ -1,4 +1,4 @@
-From f0dd153c2edcad18d1a3d1bd2a103775c7a8bbb6 Mon Sep 17 00:00:00 2001
+From b48b4b74076db38b5a8a4b7021e4c9a5cea08cc5 Mon Sep 17 00:00:00 2001
 From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Date: Tue, 13 Oct 2015 21:30:02 +0900
 Subject: [PATCH 8/8] tools/vm/slabinfo: gnuplot slabifo extended stat
@@ -19,16 +19,16 @@ To visually compare N `totals' graphs:
 
 Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 ---
- tools/vm/slabinfo-gnuplot.sh | 273 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 273 insertions(+)
+ tools/vm/slabinfo-gnuplot.sh | 275 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 275 insertions(+)
  create mode 100755 tools/vm/slabinfo-gnuplot.sh
 
 diff --git a/tools/vm/slabinfo-gnuplot.sh b/tools/vm/slabinfo-gnuplot.sh
 new file mode 100755
-index 0000000..2e0f884
+index 0000000..35b0398
 --- /dev/null
 +++ b/tools/vm/slabinfo-gnuplot.sh
-@@ -0,0 +1,273 @@
+@@ -0,0 +1,275 @@
 +#!/bin/sh
 +
 +# Sergey Senozhatsky, 2015
@@ -87,6 +87,7 @@ index 0000000..2e0f884
 +do_slabs_plotting()
 +{
 +	local file=$1
++	local out_file
 +	local range="every ::$xmin"
 +	local xtic=""
 +	local xtic_rotate="norotate"
@@ -95,6 +96,7 @@ index 0000000..2e0f884
 +
 +	check_file_exist "$file"
 +
++	out_file=`basename "$file"`
 +	if [ $xmax -ne 0 ]; then
 +		range="$range::$xmax"
 +		lines=$((xmax-xmin))
@@ -118,7 +120,7 @@ index 0000000..2e0f884
 +#!/usr/bin/env gnuplot
 +
 +set terminal png enhanced size $width,$height large
-+set output '$file.png'
++set output '$out_file.png'
 +set autoscale xy
 +set xlabel 'samples'
 +set ylabel 'bytes'
@@ -132,7 +134,7 @@ index 0000000..2e0f884
 +EOF
 +
 +	if [ $? -eq 0 ]; then
-+		echo "$file.png"
++		echo "$out_file.png"
 +	fi
 +}
 +
@@ -149,7 +151,7 @@ index 0000000..2e0f884
 +	for i in "${t_files[@]}"; do
 +		check_file_exist "$i"
 +
-+		file="$file$i"
++		file="$file"`basename "$i"`
 +		gnuplot_cmd="$gnuplot_cmd '$i' $range using 1 title\
 +			'$i Memory usage' with lines,"
 +		gnuplot_cmd="$gnuplot_cmd '' $range using 2 title \
@@ -177,14 +179,14 @@ index 0000000..2e0f884
 +do_preprocess()
 +{
 +	local out
-+	local in=$1
 +	local lines
++	local in=$1
 +
 +	check_file_exist "$in"
 +
 +	# use only 'TOP' slab (biggest memory usage or loss)
 +	let lines=3
-+	out="$in-slabs-by-loss"
++	out=`basename "$in"`"-slabs-by-loss"
 +	`cat "$in" | grep -A "$lines" 'Slabs sorted by loss' |\
 +		egrep -iv '\-\-|Name|Slabs'\
 +		| awk '{print $1" "$4+$2*$3" "$4}' > "$out"`
@@ -193,7 +195,7 @@ index 0000000..2e0f884
 +	fi
 +
 +	let lines=3
-+	out="$in-slabs-by-size"
++	out=`basename "$in"`"-slabs-by-size"
 +	`cat "$in" | grep -A "$lines" 'Slabs sorted by size' |\
 +		egrep -iv '\-\-|Name|Slabs'\
 +		| awk '{print $1" "$4" "$4-$2*$3}' > "$out"`
@@ -201,7 +203,7 @@ index 0000000..2e0f884
 +		do_slabs_plotting "$out"
 +	fi
 +
-+	out="$in-totals"
++	out=`basename "$in"`"-totals"
 +	`cat "$in" | grep "Memory used" |\
 +		awk '{print $3" "$7}' > "$out"`
 +	if [ $? -eq 0 ]; then

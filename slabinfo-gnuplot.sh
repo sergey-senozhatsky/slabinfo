@@ -56,6 +56,7 @@ check_file_exist()
 do_slabs_plotting()
 {
 	local file=$1
+	local out_file
 	local range="every ::$xmin"
 	local xtic=""
 	local xtic_rotate="norotate"
@@ -64,6 +65,7 @@ do_slabs_plotting()
 
 	check_file_exist "$file"
 
+	out_file=`basename "$file"`
 	if [ $xmax -ne 0 ]; then
 		range="$range::$xmax"
 		lines=$((xmax-xmin))
@@ -87,7 +89,7 @@ gnuplot -p << EOF
 #!/usr/bin/env gnuplot
 
 set terminal png enhanced size $width,$height large
-set output '$file.png'
+set output '$out_file.png'
 set autoscale xy
 set xlabel 'samples'
 set ylabel 'bytes'
@@ -101,7 +103,7 @@ plot "$file" $range u 2$xtic title 'SIZE' with boxes,\
 EOF
 
 	if [ $? -eq 0 ]; then
-		echo "$file.png"
+		echo "$out_file.png"
 	fi
 }
 
@@ -118,7 +120,7 @@ do_totals_plotting()
 	for i in "${t_files[@]}"; do
 		check_file_exist "$i"
 
-		file="$file$i"
+		file="$file"`basename "$i"`
 		gnuplot_cmd="$gnuplot_cmd '$i' $range using 1 title\
 			'$i Memory usage' with lines,"
 		gnuplot_cmd="$gnuplot_cmd '' $range using 2 title \
@@ -146,14 +148,14 @@ EOF
 do_preprocess()
 {
 	local out
-	local in=$1
 	local lines
+	local in=$1
 
 	check_file_exist "$in"
 
 	# use only 'TOP' slab (biggest memory usage or loss)
 	let lines=3
-	out="$in-slabs-by-loss"
+	out=`basename "$in"`"-slabs-by-loss"
 	`cat "$in" | grep -A "$lines" 'Slabs sorted by loss' |\
 		egrep -iv '\-\-|Name|Slabs'\
 		| awk '{print $1" "$4+$2*$3" "$4}' > "$out"`
@@ -162,7 +164,7 @@ do_preprocess()
 	fi
 
 	let lines=3
-	out="$in-slabs-by-size"
+	out=`basename "$in"`"-slabs-by-size"
 	`cat "$in" | grep -A "$lines" 'Slabs sorted by size' |\
 		egrep -iv '\-\-|Name|Slabs'\
 		| awk '{print $1" "$4" "$4-$2*$3}' > "$out"`
@@ -170,7 +172,7 @@ do_preprocess()
 		do_slabs_plotting "$out"
 	fi
 
-	out="$in-totals"
+	out=`basename "$in"`"-totals"
 	`cat "$in" | grep "Memory used" |\
 		awk '{print $3" "$7}' > "$out"`
 	if [ $? -eq 0 ]; then
